@@ -1,7 +1,7 @@
 # AGENTS.md
 
 ## Repo Shape
-- Python package `pysib` (pip-installable) at `src/pysib/`; MATLAB sources kept as reference in `src/C/` and `src/pysib_*.m` (untouched).
+- Python package `pysib` (pip-installable) at `src/pysib/`.
 - `src/pysib/_c/` contains C extensions compiled via `setuptools.Extension` — one `.so` per algorithm (OE, ARMAX, BJ).
 - `tests/test_basic.py` covers all public functions with pytest.
 
