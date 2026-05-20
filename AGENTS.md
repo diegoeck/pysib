@@ -15,7 +15,7 @@
 - Quick smoke: `python3 -c "import pysib; import numpy as np; u=np.sin(np.arange(80)/5); y=u+0.01*np.random.randn(80); pysib.oe(u,y,1,1,0); print('OK')"`
 
 ## Architecture
-- `arx.py`, `sm.py` → pure NumPy/SciPy (no C).
+- `arx.py`, `sm.py`, `correlation.py`, `iv.py` → pure NumPy/SciPy (no C).
 - `oe.py`, `armax.py`, `bj.py` → ARX initial guess + C optimizer via `_c._pysib_*_core.identify()`.
 - `predict.py` → `predict()` and `simulate()` using `scipy.signal.lfilter`.
 - `filtered.py` → frequency-sweep filtered variants calling the C optimizer at each step.

@@ -1,13 +1,14 @@
 import numpy as np
 
 
-def correlation(u, y, na, nb, nz, M=20):
+def correlation(u, y, na, nb, nz, M=20, z=None):
     """
     ARX identification by correlation error minimization.
 
-    Minimizes ||r_{eu}(tau)||^2 over tau = 0 .. M-2, where
-    r_{eu}(tau) is the cross-correlation between the prediction
-    error e(t) and the input u(t-tau).
+    Minimizes ||r_{ez}(tau)||^2 over tau = 0 .. M-2, where
+    r_{ez}(tau) is the cross-correlation between the prediction
+    error e(t) and the instrument z(t-tau). If z is not provided,
+    the input u is used as the instrument.
 
     Parameters
     ----------
@@ -23,6 +24,9 @@ def correlation(u, y, na, nb, nz, M=20):
         Input delay.
     M : int, optional
         Number of correlation lags (default 20).
+    z : array_like, optional
+        External instrument for cross-correlation. If None (default),
+        the input u is used as the instrument.
 
     Returns
     -------
@@ -34,6 +38,17 @@ def correlation(u, y, na, nb, nz, M=20):
     u = np.asarray(u, dtype=float).ravel()
     y = np.asarray(y, dtype=float).ravel()
     N = len(u)
+
+    # Use external instrument if provided, otherwise u is the instrument
+    if z is not None:
+        z = np.asarray(z, dtype=float).ravel()
+        if len(z) != N:
+            raise ValueError(
+                f"instrument z has length {len(z)}, expected {N} "
+                f"(same as u and y)"
+            )
+    else:
+        z = u
 
     # Build regressor matrix phi (same as ARX)
     cols = []
@@ -48,21 +63,21 @@ def correlation(u, y, na, nb, nz, M=20):
     phi = np.column_stack(cols)            # N x (na+nb)
 
     n_theta = na + nb
-    R = np.zeros((M, n_theta))             # R[tau, k] = corr(u(t-tau), phi_k(t))
-    r_uy = np.zeros(M)                     # r_uy[tau] = corr(u(t-tau), y(t))
+    R = np.zeros((M, n_theta))             # R[tau, k] = corr(z(t-tau), phi_k(t))
+    r_zy = np.zeros(M)                     # r_zy[tau] = corr(z(t-tau), y(t))
 
     for tau in range(M):
         t0 = tau
         if N <= t0:
             break
         win = slice(t0, N)
-        u_tau = u[:N - tau]
-        r_uy[tau] = np.mean(u_tau * y[win])
+        z_tau = z[:N - tau]
+        r_zy[tau] = np.mean(z_tau * y[win])
         for k in range(n_theta):
-            R[tau, k] = np.mean(u_tau * phi[win, k])
+            R[tau, k] = np.mean(z_tau * phi[win, k])
 
-    # θ = (RᵀR)⁻¹ Rᵀ r_uy
-    theta = np.linalg.lstsq(R, r_uy, rcond=None)[0]
+    # θ = (RᵀR)⁻¹ Rᵀ r_zy
+    theta = np.linalg.lstsq(R, r_zy, rcond=None)[0]
 
     m = {
         "A": np.concatenate(([1.0], theta[:na])),
