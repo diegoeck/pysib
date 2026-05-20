@@ -6,3 +6,4 @@ from .bj import bj
 from .predict import predict, simulate
 from .filtered import oe_filtered, armax_filtered, bj_filtered
 from .plota import plota
+from .correlation import correlation

@@ -113,3 +113,15 @@ def test_filtered_basic():
 
     theta, m = pysib.armax_filtered(u, y, na=1, nb=1, nc=0, nz=1)
     assert len(theta) == 2
+
+
+def test_correlation_exact():
+    """Correlation: recover y = 0.5*y(t-1) + u(t-1) exactly."""
+    N = 500
+    u = _sin_input(N)
+    y = lfilter([0, 1], [1, -0.5], u)
+
+    theta, m = pysib.correlation(u, y, na=1, nb=1, nz=1, M=30)
+
+    assert abs(theta[0] - (-0.5)) < 1e-6   # a1
+    assert abs(theta[1] - 1.0) < 1e-6       # b1
