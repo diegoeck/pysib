@@ -4,7 +4,8 @@
 - Python package `pysib` (pip-installable) at `src/pysib/`.
 - `src/pysib/_c/` contains C extensions compiled via `setuptools.Extension` — one `.so` per algorithm (OE, ARMAX, BJ).
 - `tests/test_basic.py` covers all public functions with pytest.
-- ACM TOMS Algorithm article draft is in `artigo/` using `acmart` and BibTeX.
+- ACM TOMS Algorithm article draft is in `docs/paper/` using `acmart` and BibTeX.
+- User manual in LaTeX is in `docs/manual/`; article and manual go to `docs/` (not PyPI).
 
 ## Build & Install
 - `pip install -e .` from the repo root compiles C extensions and installs the package.
@@ -14,7 +15,8 @@
 ## Focused Verification
 - Run tests: `python3 -m pytest tests/ -v`
 - Quick smoke: `python3 -c "import pysib; import numpy as np; u=np.sin(np.arange(80)/5); y=u+0.01*np.random.randn(80); pysib.oe(u,y,1,1,0); print('OK')"`
-- Build article: `make` from `artigo/`.
+- Build article: `make` from `docs/paper/`.
+- Build manual: `make` from `docs/manual/`.
 
 ## Architecture
 - `arx.py`, `sm.py`, `correlation.py`, `iv.py` → pure NumPy/SciPy (no C).

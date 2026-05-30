@@ -1,0 +1,62 @@
+\documentclass[../main]{subfiles}
+\begin{document}
+\newpage
+
+\subsubsection{\texttt{bj\_filtered}}
+
+\begin{lstlisting}
+theta, m = pysib.bj_filtered(u, y, nb, nc, nd, nf, nz)
+\end{lstlisting}
+
+Identifies a Box--Jenkins model using a cost-function shaping
+strategy to improve convergence.  The model structure and the
+criterion minimized at each stage are the same as for \texttt{bj}:
+
+\[
+  y(t) = \frac{B(q^{-1})}{F(q^{-1})}\,u(t-n_k)
+       + \frac{C(q^{-1})}{D(q^{-1})}\,e(t), \qquad
+  V(\theta) = \frac{1}{N}\sum_t \varepsilon(t;\theta)^2.
+\]
+
+Before the final unfiltered BJ step, 9 auxiliary BJ problems are
+solved on filtered versions of the data.  At stage $i$, both
+\texttt{u} and \texttt{y} are passed through a first-order low-pass
+Butterworth filter with cutoff frequency $0.1 i\,\pi$\,rad/sample
+($i = 1,\ldots,9$), and the BJ criterion is minimized on the filtered
+data.  The cutoff increases from $0.1\pi$ to $0.9\pi$, progressively
+widening the passband and reshaping the cost function to reduce the
+attraction of undesirable local minima before the estimate is refined
+on the original data.
+
+\subsubsection*{Arguments}
+\begin{center}
+\begin{tabular}{lll}
+  \toprule
+  Name & Type & Description \\
+  \midrule
+  \texttt{u}  & array\_like & Input signal. \\
+  \texttt{y}  & array\_like & Output signal. \\
+  \texttt{nb} & int & Number of $B$ parameters. \\
+  \texttt{nc} & int & Number of $C$ parameters. \\
+  \texttt{nd} & int & Number of $D$ parameters. \\
+  \texttt{nf} & int & Number of $F$ parameters. \\
+  \texttt{nz} & int & Input delay $n_k \geq 0$. \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\subsubsection*{Returns}
+\begin{center}
+\begin{tabular}{lll}
+  \toprule
+  Name & Type & Value \\
+  \midrule
+  \texttt{theta} & ndarray & $[b_0,\ldots,b_{n_b-1},\; c_1,\ldots,c_{n_c},\;
+                              d_1,\ldots,d_{n_d},\; f_1,\ldots,f_{n_f}]$ \\
+  \texttt{m}     & dict    & \texttt{B}, \texttt{C}, \texttt{D}, \texttt{F} free;
+                             \texttt{A}$=[1]$ \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\end{document}

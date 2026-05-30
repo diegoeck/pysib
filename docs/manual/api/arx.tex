@@ -1,0 +1,59 @@
+\documentclass[../main]{subfiles}
+\begin{document}
+\newpage
+
+\subsubsection{\texttt{arx} --- ARX identification}
+
+\begin{lstlisting}
+theta, m = pysib.arx(u, y, na, nb, nz)
+\end{lstlisting}
+
+Identifies an ARX model by ordinary least squares.
+The model structure is
+
+\[
+  A(q^{-1})\,y(t) = B(q^{-1})\,u(t - n_k) + e(t),
+\]
+
+where $e(t)$ is white noise.
+The one-step-ahead predictor is linear in the parameters:
+
+\[
+  \hat{y}(t \mid t-1) =
+  -\sum_{i=1}^{n_a} a_i\,y(t-i)
+  + \sum_{j=0}^{n_b-1} b_j\,u(t - n_k - j),
+\]
+
+so the prediction-error criterion
+$V(\theta) = \tfrac{1}{N}\sum_t [y(t) - \hat{y}(t\mid t-1)]^2$
+is quadratic in $\theta$ and has a unique global minimum found
+by a single linear least-squares solve.
+
+\subsubsection*{Arguments}
+\begin{center}
+\begin{tabular}{lll}
+  \toprule
+  Name & Type & Description \\
+  \midrule
+  \texttt{u}  & array\_like & Input signal, length $N$. \\
+  \texttt{y}  & array\_like & Output signal, length $N$. \\
+  \texttt{na} & int & Number of $A$ parameters: $a_1,\ldots,a_{n_a}$. \\
+  \texttt{nb} & int & Number of $B$ parameters $b_0,\ldots,b_{n_b-1}$ (degree of $B$ is $n_b-1$). \\
+  \texttt{nz} & int & Input delay $n_k \geq 0$. \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\subsubsection*{Returns}
+\begin{center}
+\begin{tabular}{lll}
+  \toprule
+  Name & Type & Value \\
+  \midrule
+  \texttt{theta} & ndarray & $[a_1,\ldots,a_{n_a},\; b_0,\ldots,b_{n_b-1}]$ \\
+  \texttt{m}     & dict    & \texttt{A}, \texttt{B} free; \texttt{C}$=$\texttt{D}$=$\texttt{F}$=[1]$ \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\end{document}

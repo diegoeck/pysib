@@ -1,0 +1,765 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{subfiles}
+\geometry{margin=2.5cm}
+
+\definecolor{codebg}{rgb}{0.97,0.97,0.97}
+\definecolor{codeframe}{rgb}{0.80,0.80,0.80}
+
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    backgroundcolor=\color{codebg},
+    frame=single,
+    rulecolor=\color{codeframe},
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false,
+    xleftmargin=1em,
+    xrightmargin=1em,
+}
+
+\title{\textbf{pysib} --- System Identification Toolbox\\[0.5em]
+       \large User Manual\\[0.5em]
+       \normalsize Version 1.0}
+\author{Diego Eckhard\\
+        Universidade Federal do Rio Grande do Sul\\
+        \texttt{diegoeck@ufrgs.br}}
+\date{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+% =========================================================
+\section{Overview}
+% =========================================================
+
+\textbf{pysib} is a Python toolbox for parameter identification of
+discrete-time, single-input single-output (SISO) dynamic systems.
+It implements the classical prediction-error estimators for polynomial
+input--output model structures: ARX, ARMAX, OE, and Box--Jenkins,
+together with auxiliary methods (Stieglitz--McBride, instrumental
+variables, correlation error minimization) and filtered variants
+designed to improve convergence in the presence of local minima.
+
+\subsection{General model structure}
+
+All model structures supported by pysib are special cases of
+
+\begin{equation}
+  y(t) =
+  \frac{B(q^{-1})}{A(q^{-1})F(q^{-1})}\,u(t)
+  + \frac{C(q^{-1})}{A(q^{-1})D(q^{-1})}\,e(t),
+  \label{eq:general}
+\end{equation}
+
+where $u(t)$ is the input, $y(t)$ is the output, $e(t)$ is white
+noise, and $q^{-1}$ is the backward-shift operator.
+The polynomials are written in non-negative powers of $q^{-1}$:
+\begin{align*}
+  A(q^{-1}) &= 1 + a_1 q^{-1} + \cdots + a_{n_a} q^{-n_a}, \\
+  B(q^{-1}) &= b_0 + b_1 q^{-1} + \cdots + b_{n_b-1} q^{-(n_b-1)}, \\
+  C(q^{-1}) &= 1 + c_1 q^{-1} + \cdots + c_{n_c} q^{-n_c}, \\
+  D(q^{-1}) &= 1 + d_1 q^{-1} + \cdots + d_{n_d} q^{-n_d}, \\
+  F(q^{-1}) &= 1 + f_1 q^{-1} + \cdots + f_{n_f} q^{-n_f}.
+\end{align*}
+
+Each model structure fixes some polynomials to unity:
+
+\begin{center}
+\begin{tabular}{llllll}
+  \toprule
+  Structure & $A$ & $B$ & $C$ & $D$ & $F$ \\
+  \midrule
+  ARX    & free & free & $1$  & $1$  & $1$  \\
+  ARMAX  & free & free & free & $1$  & $1$  \\
+  OE     & $1$  & free & $1$  & $1$  & free \\
+  BJ     & $1$  & free & free & free & free \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+An input delay of $n_k$ samples is incorporated by prepending $n_k$
+zeros to the $B$ polynomial.
+
+\subsection{Return convention}
+
+Every identification routine returns a pair \texttt{(theta, m)}:
+
+\begin{itemize}
+  \item \texttt{theta}: 1-D \texttt{ndarray} of estimated free parameters,
+        in the order listed in the API reference for each function.
+  \item \texttt{m}: \texttt{dict} with keys \texttt{A}, \texttt{B},
+        \texttt{C}, \texttt{D}, \texttt{F}, each a 1-D \texttt{ndarray}
+        of polynomial coefficients with the leading $1$ included where
+        applicable.
+\end{itemize}
+
+The \texttt{m} dictionary can be passed directly to \texttt{predict}
+and \texttt{simulate}, regardless of which estimator produced it.
+
+% =========================================================
+\newpage
+\section{Installation}
+% =========================================================
+
+\subsection{Requirements}
+
+\begin{center}
+\begin{tabular}{ll}
+  \toprule
+  Dependency & Minimum version \\
+  \midrule
+  Python     & 3.9  \\
+  NumPy      & 1.20 \\
+  SciPy      & 1.7  \\
+  matplotlib & 3.4  \\
+  \midrule
+  C compiler & GCC $\geq$ 9 or Clang $\geq$ 11 \\
+  LAPACK     & Accelerate (macOS) or \texttt{liblapack-dev} (Linux) \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+The C compiler and LAPACK are required to build the extension modules
+for the nonlinear estimators (OE, ARMAX, BJ) and their filtered
+variants.  On macOS, the Accelerate framework is available by default.
+On Linux (Debian/Ubuntu), install the dependencies with:
+
+\begin{lstlisting}
+sudo apt-get install gcc liblapack-dev
+\end{lstlisting}
+
+\subsection{Installing via pip}
+
+\begin{lstlisting}
+pip install pysib
+\end{lstlisting}
+
+The C extensions are compiled automatically during installation.
+A working C compiler and LAPACK must be available before running this
+command.
+
+\subsection{Verifying the installation}
+
+\begin{lstlisting}
+python -c "import pysib; print('pysib OK')"
+\end{lstlisting}
+
+To run the test suite:
+
+\begin{lstlisting}
+pip install pytest
+python -m pytest tests/ -v
+\end{lstlisting}
+
+\subsection{Running the driver programs}
+
+The \texttt{Python/drivers/} directory contains one driver script per
+numerical result presented in the article.  Each driver is
+self-contained and requires no interactive input.  To run all drivers:
+
+\begin{lstlisting}
+cd Python/drivers
+make run
+\end{lstlisting}
+
+Expected outputs are stored in \texttt{Python/drivers/expected/}.
+
+% =========================================================
+\newpage
+\section{API Reference}
+% =========================================================
+
+All functions are accessible directly from the \texttt{pysib} namespace
+after \texttt{import pysib}.
+
+% ---------------------------------------------------------
+\subsection{Methods without optimization}
+% ---------------------------------------------------------
+
+These estimators do not require nonlinear optimization.
+ARX and correlation solve a single linear least-squares problem.
+IV uses the same structure with an instrument matrix.
+SM solves a sequence of linear problems iteratively (100~steps).
+They are generally fast, but can be biased when the noise model
+does not match the assumed structure.
+
+\subfile{api/arx}
+\subfile{api/sm}
+\subfile{api/correlation}
+\subfile{api/iv}
+
+% ---------------------------------------------------------
+\newpage
+\subsection{Methods with optimization}
+% ---------------------------------------------------------
+
+These estimators minimize the prediction-error criterion
+\[
+  V(\theta) = \frac{1}{N}\sum_t \varepsilon(t;\theta)^2.
+\]
+The criterion is nonlinear in $\theta$ because the denominator
+polynomials ($F$, or $C$ and $D$) appear in the predictor.
+An ARX estimate provides the initial guess in all cases; the optimizer
+then runs two phases implemented in a C extension.
+
+\paragraph{Sensitivity signals.}
+At each $\theta$, the sensitivity vector
+$\psi(t;\theta) = -\partial\varepsilon(t;\theta)/\partial\theta$
+is computed by filtering.  For the OE structure, for example,
+\[
+  \psi^B_j(t) = \frac{u(t-n_k)}{F(q^{-1})} \cdot q^{-j}, \qquad
+  \psi^F_j(t) = \frac{\hat{y}(t)}{F(q^{-1})} \cdot q^{-j},
+\]
+where $\hat{y}(t) = (B/F)\,u(t-n_k)$ is the current simulated
+output.  ARMAX and BJ use analogous filtered signals for their
+respective polynomials.
+
+\paragraph{Gradient and Gauss--Newton Hessian.}
+The gradient and an approximate Hessian are assembled from the
+sensitivity signals and the current prediction error $\varepsilon(t)$:
+\[
+  g_j = -\sum_t \varepsilon(t)\,\psi_j(t), \qquad
+  H_{jk} = \sum_t \psi_j(t)\,\psi_k(t).
+\]
+$H$ is the Gauss--Newton approximation to the Hessian of $V$: it
+retains only the outer-product term $\Psi^\top\Psi$ and drops the
+second-derivative term (which vanishes near the optimum).
+
+\paragraph{Phase~1 --- steepest descent with smoothed direction.}
+The gradient direction is smoothed by an exponential moving average before each step:
+\[
+  d \leftarrow \tfrac{4}{5}\,d + \tfrac{1}{5}\,g.
+\]
+The update is $\theta \leftarrow \theta - \alpha\,d/\|d\|$, where
+$\alpha$ is adapted per step (multiplied by $1.01$ on a successful
+reduction, by $0.99$ otherwise).  This phase runs for up to
+$100 \times 100$ gradient evaluations.
+
+\paragraph{Phase~2 --- Gauss--Newton with backtracking.}
+The Newton direction $d$ is obtained by solving $H\,d = g$ via
+LAPACK \texttt{dposv} (Cholesky factorisation for symmetric positive
+definite matrices).  The step length grows linearly with iteration
+$i$: $\theta \leftarrow \theta - (i/1000)\,d$.  If the step
+increases $V$, the candidate is bisected up to 10 times.  This
+phase runs for up to 1\,000 iterations.
+
+\subfile{api/oe}
+\subfile{api/armax}
+\subfile{api/bj}
+
+% ---------------------------------------------------------
+\newpage
+\subsection{Filtered estimators}
+% ---------------------------------------------------------
+
+The filtered estimators address the sensitivity of the nonlinear
+prediction-error criterion to local minima by a cost-function shaping
+strategy: both \texttt{u} and \texttt{y} are low-pass filtered before
+the optimization, which removes high-frequency content and reshapes the
+objective to be more convex in the low-frequency region.  The
+optimization is repeated 9 times with progressively wider passbands,
+then once more on the original unfiltered data to obtain the final
+estimate.
+
+\paragraph{Filter sequence for \texttt{oe\_filtered}.}
+A first-order DC-normalized IIR filter is used:
+\[
+  L_i(q^{-1}) = \frac{1 - a_i}{1 - a_i\,q^{-1}}, \quad i = 1,\ldots,9.
+\]
+The poles $a_i$ are spaced so that the impulse response decays to
+$5\%$ in $\tau_i$ samples, with $\tau_i$ decreasing from 36 to 4:
+\[
+  a_i = 0.05^{1/\tau_i}, \quad
+  \tau_i \in \{36,\,32,\,28,\,24,\,20,\,16,\,12,\,8,\,4\}.
+\]
+The resulting poles decrease from $a_1 \approx 0.920$ to
+$a_9 \approx 0.473$, progressively widening the passband.
+The initial guess for stage~1 is an ARX estimate computed on the
+most-narrowly filtered data; each subsequent stage warm-starts
+from the previous estimate.
+
+\paragraph{Filter sequence for \texttt{armax\_filtered} and
+\texttt{bj\_filtered}.}
+A first-order Butterworth low-pass filter is used at each stage:
+\[
+  L_i = \mathrm{Butterworth}\!\left(1,\; \omega_c = 0.1\,i\,\pi\right),
+  \quad i = 1,\ldots,9,
+\]
+where $\omega_c$ is the $-3\,\mathrm{dB}$ cutoff in rad/sample.
+The cutoff increases from $0.1\pi$ to $0.9\pi$, covering
+progressively wider bands.
+The initial guess is an ARX estimate on the unfiltered data; each
+subsequent stage warm-starts from the previous estimate.
+
+\subfile{api/oe_filtered}
+\subfile{api/armax_filtered}
+\subfile{api/bj_filtered}
+
+% ---------------------------------------------------------
+\newpage
+\subsection{Extra functions}
+% ---------------------------------------------------------
+
+After identification, three utility functions support model validation
+and analysis.
+\texttt{predict} and \texttt{simulate} both take the model dictionary
+\texttt{m} returned by any estimator.
+\texttt{predict} computes the one-step-ahead prediction
+$\hat{y}(t\mid t-1)$ using both the input and the observed output;
+residuals $\varepsilon(t) = y(t) - \hat{y}(t\mid t-1)$ should be
+white and uncorrelated with the input for a correct model.
+\texttt{simulate} computes the open-loop output $G(q^{-1})\,u(t)$
+using only the input signal; it does not use output observations or
+the noise model ($C$, $D$ are ignored).
+Both functions can be applied to validation data; they assess
+complementary aspects of model quality.
+\texttt{plota} is a Monte Carlo diagnostic: given a matrix of
+parameter estimates from repeated experiments, it sorts the runs and
+plots all parameters together so that the spread and bias of the
+estimates can be assessed visually.
+
+\subfile{api/predict}
+\subfile{api/simulate}
+\subfile{api/plota}
+
+% =========================================================
+\newpage
+\section{Examples}
+% =========================================================
+
+\subsection{ARX}
+
+Based on \texttt{examples/example\_arx.py}.
+
+\begin{lstlisting}
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.signal import lfilter
+import pysib
+
+N = 1000
+t = np.arange(N)
+u = np.sign(np.sin(2 * np.pi * t / 100))  # square wave
+
+# True model:  y(t) = 0.9*y(t-1) + u(t-1) + e(t)
+y = lfilter([0, 1], [1, -0.9], u) + lfilter([1], [1, -0.9], np.random.randn(N))
+
+theta, m = pysib.arx(u, y, na=1, nb=1, nz=1)
+print("theta:", theta)
+
+yp = pysib.predict(u, y, m)
+ys = pysib.simulate(u, m)
+
+plt.plot(t, y, label="Data")
+plt.plot(t, yp, label="Prediction")
+plt.plot(t, ys, label="Simulation")
+plt.legend(); plt.show()
+\end{lstlisting}
+
+\subsection{OE and Stieglitz--McBride}
+
+Based on \texttt{examples/example\_oe.py} and \texttt{examples/example\_sm.py}.
+
+\begin{lstlisting}
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.signal import lfilter
+import pysib
+
+N = 100
+t = np.arange(N)
+u = np.sign(np.sin(2 * np.pi * t / 100))
+
+# True OE model:  y(t) = u(t-1) / (1 - 0.9*z^-1) + e(t)
+y = lfilter([0, 1], [1, -0.9], u) + 0.01 * np.random.randn(N)
+
+theta_oe, m_oe = pysib.oe(u, y, nb=1, nf=1, nz=1)
+theta_sm, m_sm = pysib.sm(u, y, nb=1, nf=1, nz=1)
+print("OE theta:", theta_oe)
+print("SM theta:", theta_sm)
+
+yp = pysib.predict(u, y, m_oe)
+ys = pysib.simulate(u, m_oe)
+
+plt.plot(t, y, label="Data")
+plt.plot(t, yp, label="Prediction (OE)")
+plt.plot(t, ys, label="Simulation (OE)")
+plt.legend(); plt.show()
+\end{lstlisting}
+
+\subsection{ARMAX}
+
+Based on \texttt{examples/example\_armax.py}.
+
+\begin{lstlisting}
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.signal import lfilter
+import pysib
+
+N = 1000
+t = np.arange(N)
+u = np.sign(np.sin(2 * np.pi * t / 100))
+
+# True ARMAX:  y = u(t-1)/(1-0.9z^-1) + (1-0.5z^-1)/(1-0.9z^-1)*e(t)
+y = (lfilter([0, 1], [1, -0.9], u)
+   + lfilter([1, -0.5], [1, -0.9], np.random.randn(N)))
+
+theta, m = pysib.armax(u, y, na=1, nb=1, nc=1, nz=1)
+print("theta:", theta)
+
+yp = pysib.predict(u, y, m)
+ys = pysib.simulate(u, m)
+
+plt.plot(t, y, label="Data")
+plt.plot(t, yp, label="Prediction")
+plt.plot(t, ys, label="Simulation")
+plt.legend(); plt.show()
+\end{lstlisting}
+
+\subsection{Box--Jenkins}
+
+Based on \texttt{examples/example\_bj.py}.
+
+\begin{lstlisting}
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.signal import lfilter
+import pysib
+
+N = 1000
+t = np.arange(N)
+u = np.sign(np.sin(2 * np.pi * t / 100))
+
+# True BJ:  y = u(t-1)/(1-0.9z^-1) + (1-0.5z^-1)/(1-1.5z^-1+0.7z^-2)*e(t)
+y = (lfilter([0, 1], [1, -0.9], u)
+   + lfilter([1, -0.5], [1, -1.5, 0.7], 0.05 * np.random.randn(N)))
+
+theta, m = pysib.bj(u, y, nb=1, nc=1, nd=2, nf=1, nz=1)
+print("theta:", theta)
+
+yp = pysib.predict(u, y, m)
+ys = pysib.simulate(u, m)
+
+plt.plot(t, y, label="Data")
+plt.plot(t, yp, label="Prediction")
+plt.plot(t, ys, label="Simulation")
+plt.legend(); plt.show()
+\end{lstlisting}
+
+\subsection{Correlation error minimization}
+
+Based on \texttt{examples/example\_correlation.py}.
+
+\begin{lstlisting}
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.signal import lfilter
+import pysib
+
+N = 1000
+t = np.arange(N)
+u = np.sign(np.sin(2 * np.pi * t / 100))
+
+# True ARX: y(t) = 0.9*y(t-1) + u(t-1) + e(t)
+y = lfilter([0, 1], [1, -0.9], u) + np.random.randn(N)
+
+theta_ls,   m_ls   = pysib.arx(u, y, na=1, nb=1, nz=1)
+theta_corr, m_corr = pysib.correlation(u, y, na=1, nb=1, nz=1, M=30)
+print("ARX        :", theta_ls)
+print("Correlation:", theta_corr)
+
+yp = pysib.predict(u, y, m_corr)
+ys = pysib.simulate(u, m_corr)
+
+plt.plot(t, y, label="Data")
+plt.plot(t, yp, label="Prediction (correlation)")
+plt.plot(t, ys, label="Simulation (correlation)")
+plt.legend(); plt.show()
+\end{lstlisting}
+
+\subsection{Instrumental variables}
+
+Based on \texttt{examples/example\_iv.py}.
+
+\begin{lstlisting}
+import numpy as np
+from scipy.signal import lfilter
+import pysib
+
+N = 1000
+t = np.arange(N)
+u = np.sign(np.sin(2 * np.pi * t / 100))
+
+# Two independent noise realizations, same input
+y1 = lfilter([0, 1], [1, -0.9], u) + np.random.randn(N)
+y2 = lfilter([0, 1], [1, -0.9], u) + np.random.randn(N)
+
+theta_arx, _ = pysib.arx(u, y1, na=1, nb=1, nz=1)
+theta_iv,  _ = pysib.iv(u, y1, y2, na=1, nb=1, nz=1)
+print("ARX:", theta_arx)
+print("IV :", theta_iv)
+\end{lstlisting}
+
+\subsection{OE with filtered initialization}
+
+Based on \texttt{examples/example\_oe\_filtered.py}.
+
+\begin{lstlisting}
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.signal import lfilter
+import pysib
+
+N = 100
+t = np.arange(N)
+u = np.sign(np.sin(2 * np.pi * t / 100))
+
+y = lfilter([0, 1], [1, -0.9], u) + 0.1 * np.random.randn(N)
+
+theta_oe,   m_oe   = pysib.oe(u, y, nb=1, nf=1, nz=1)
+theta_filt, m_filt = pysib.oe_filtered(u, y, nb=1, nf=1, nz=1)
+print("OE         :", theta_oe)
+print("OE filtered:", theta_filt)
+
+yp = pysib.predict(u, y, m_filt)
+ys = pysib.simulate(u, m_filt)
+
+plt.plot(t, y, label="Data")
+plt.plot(t, yp, label="Prediction (filtered)")
+plt.plot(t, ys, label="Simulation (filtered)")
+plt.legend(); plt.show()
+\end{lstlisting}
+
+\subsection{ARMAX with filtered initialization}
+
+Based on \texttt{examples/example\_armax\_filtered.py}.
+
+\begin{lstlisting}
+import numpy as np
+from scipy.signal import lfilter
+import pysib
+
+N = 1000
+t = np.arange(N)
+u = np.sign(np.sin(2 * np.pi * t / 100))
+
+y = (lfilter([0, 1], [1, -0.9], u)
+   + lfilter([1, -0.5], [1, -0.9], np.random.randn(N)))
+
+theta_armax, _ = pysib.armax(u, y, na=1, nb=1, nc=1, nz=1)
+theta_filt,  _ = pysib.armax_filtered(u, y, na=1, nb=1, nc=1, nz=1)
+print("ARMAX         :", theta_armax)
+print("ARMAX filtered:", theta_filt)
+\end{lstlisting}
+
+\subsection{Box--Jenkins with filtered initialization}
+
+Based on \texttt{examples/example\_bj\_filtered.py}.
+
+\begin{lstlisting}
+import numpy as np
+from scipy.signal import lfilter
+import pysib
+
+N = 1000
+t = np.arange(N)
+u = np.sign(np.sin(2 * np.pi * t / 100))
+
+y = (lfilter([0, 1], [1, -0.9], u)
+   + lfilter([1, -0.5], [1, -1.5, 0.7], 0.05 * np.random.randn(N)))
+
+theta_bj,   _ = pysib.bj(u, y, nb=1, nc=1, nd=2, nf=1, nz=1)
+theta_filt, _ = pysib.bj_filtered(u, y, nb=1, nc=1, nd=2, nf=1, nz=1)
+print("BJ         :", theta_bj)
+print("BJ filtered:", theta_filt)
+\end{lstlisting}
+
+\subsection{Monte Carlo plot}
+
+Based on \texttt{examples/example\_monte\_carlo.py}.
+
+\begin{lstlisting}
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.signal import lfilter
+import pysib
+
+M = 100
+N = 100
+T = np.full((2, M), np.nan)
+
+for run in range(M):
+    t = np.arange(N)
+    u = np.sign(np.sin(2 * np.pi * t / 100))
+    y = lfilter([0, 1], [1, -0.9], u) + 10 * np.random.randn(N)
+    theta, _ = pysib.oe(u, y, nb=1, nf=1, nz=1)
+    T[:, run] = theta
+
+T_sorted = pysib.plota(T, a=0)
+plt.title("OE Monte-Carlo (100 runs)")
+plt.show()
+\end{lstlisting}
+
+% =========================================================
+\newpage
+\section{Parameter selection guide}
+% =========================================================
+
+\subsection{Model orders}
+
+\begin{description}
+  \item[\texttt{na}] Number of $A$ parameters ($a_1,\ldots,a_{n_a}$).
+        Start with \texttt{na = 1} or \texttt{2} for first- and
+        second-order systems.
+
+  \item[\texttt{nb}] Number of $B$ parameters ($b_0, \ldots, b_{n_b-1}$).
+        \texttt{nb = 1} gives a single gain $b_0$; the degree of $B$
+        is $n_b - 1$.
+
+  \item[\texttt{nf}] Number of $F$ parameters ($f_1,\ldots,f_{n_f}$),
+        equal to the degree of $F$ (poles of the noise-free model in
+        OE and BJ).  Typically equal to the system order.
+
+  \item[\texttt{nc}] Number of $C$ parameters ($c_1,\ldots,c_{n_c}$),
+        equal to the degree of $C$ (noise MA polynomial in ARMAX and
+        BJ).  Start with \texttt{nc = 1} and increase only if
+        residuals remain correlated.
+
+  \item[\texttt{nd}] Number of $D$ parameters ($d_1,\ldots,d_{n_d}$),
+        equal to the degree of $D$ (noise AR polynomial in BJ only).
+        Start with \texttt{nd = 1}.
+
+  \item[\texttt{nz}] Input delay in samples.  \texttt{nz = 1} means the
+        input affects the output one step later ($b_0$ multiplies
+        $u(t-1)$).  Set \texttt{nz} equal to the known or estimated
+        dead time of the process.
+\end{description}
+
+\subsection{Which estimator to use}
+
+The central question is \emph{where the noise enters the system}.
+All model structures are special cases of
+$y = G\,u + H\,e$ where $G = B/(AF)$ is the plant and
+$H = C/(AD)$ is the noise model.  Different assumptions about $H$
+lead to different estimators.
+
+\paragraph{Process noise (ARX, ARMAX).}
+If the disturbance enters at the plant input, it is filtered by the
+plant before reaching the output.  The output noise therefore has
+the same poles as the plant, giving the ARX noise model
+$H = 1/A$.  In this case ordinary least squares on the ARX
+structure is consistent.  If the residuals from ARX are correlated
+(the noise has additional moving-average dynamics), extend to ARMAX
+by adding the $C$ polynomial, making $H = C/A$.
+
+\paragraph{Measurement noise (OE, BJ).}
+If the disturbance is additive at the output (sensor or measurement
+noise), the noise is independent of the plant dynamics.  The OE
+structure captures this with $H = 1$ (white noise).  If the
+measurement noise is itself colored, BJ provides the most general
+description: $H = C/D$ with poles and zeros independent of the
+plant $G = B/F$.  Applying ARX to data with additive output noise
+yields biased estimates because the lagged output regressors are
+then correlated with the noise.
+
+\paragraph{Moment-based methods for the ARX structure (IV, correlation).}
+When ARX ordinary least squares is expected to be biased, two
+moment-based alternatives avoid nonlinear optimization entirely.
+The \emph{instrumental variable} method requires two independent
+experiments with the same input: it uses the output of the second
+experiment as an instrument for the first, yielding a consistent
+estimate because the instrument shares the input-driven component
+but has independent noise.
+The \emph{correlation} method works with a single experiment: it
+finds $\theta$ such that the prediction error is uncorrelated with
+the instrument $z$ at $M$ lags.  By default $z = u$, which is a
+valid instrument whenever the input is uncorrelated with the noise
+(open-loop operation).  An external instrument can be supplied when
+this condition does not hold.  Using $M > n_a + n_b$ lags
+over-determines the system and improves robustness.
+
+\vspace{0.5em}
+\begin{center}
+\begin{tabular}{p{0.38\textwidth}p{0.13\textwidth}p{0.35\textwidth}}
+  \toprule
+  Situation & Estimator & Notes \\
+  \midrule
+  Quick estimate; disturbance enters at plant input (process noise) &
+  ARX &
+  Closed-form; consistent when $H = 1/A$.
+  Biased under additive output noise. \\
+  \addlinespace
+  Additive output noise (measurement or sensor noise) &
+  OE &
+  Consistent plant model $B/F$; nonlinear optimization. \\
+  \addlinespace
+  OE structure; faster computation preferred &
+  SM &
+  Iterative ARX steps (100 iterations); cheaper but may
+  converge to a local minimum. \\
+  \addlinespace
+  ARX residuals are correlated; noise shares plant denominator &
+  ARMAX &
+  Extends ARX with MA noise $C/A$; nonlinear optimization. \\
+  \addlinespace
+  Plant and noise have independent pole structures &
+  BJ &
+  Fully separate plant $B/F$ and noise $C/D$;
+  most parameters; needs most data. \\
+  \addlinespace
+  Two independent experiments with the same input available &
+  IV &
+  Consistent under ARX noise structure;
+  no nonlinear optimization. \\
+  \addlinespace
+  Single experiment; input uncorrelated with noise (open-loop);
+  or external instrument available &
+  Correlation &
+  Consistent ARX estimate without a second experiment;
+  $M > n_a + n_b$ lags improve robustness. \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Filtered vs.\ standard estimators}
+
+The prediction-error criterion $V(\theta)$ is nonlinear in $\theta$
+whenever denominator polynomials are free ($F$ in OE, $C$ or $D$
+in ARMAX and BJ).  Nonlinear optimizers — including the
+steepest-descent and Gauss--Newton algorithm implemented here —
+can converge to a local minimum rather than the global one,
+particularly when the system has slow dynamics or the data record
+is short.
+
+The filtered variants reduce the likelihood of this happening by
+reshaping the cost function before the final optimization.
+Low-pass filtering the data at progressively wider bandwidths
+produces a sequence of modified criteria, each of which tends to
+have fewer local minima than the full-bandwidth criterion.
+Each stage is warm-started from the solution of the previous one,
+so the optimizer is guided toward a region close to the global
+minimum before the final unfiltered step.
+This does not \emph{guarantee} convergence to the global minimum,
+but it substantially reduces the probability of failure in
+practice.
+
+The computational cost of a filtered variant is approximately
+$10\times$ that of the corresponding standard estimator
+(9 filtered stages plus the final unfiltered run, each requiring
+a full optimization).  Use the standard estimator first; switch
+to the filtered version when the standard one returns unstable
+polynomials, produces estimates that vary across runs, or fails
+to reduce $V$ to a plausible level.
+
+\end{document}
