@@ -3,7 +3,7 @@ site_description: System Identification Toolbox — Slow is Better
 site_author: Diego Eckhard
 repo_url: https://github.com/diegoeck/pysib
 repo_name: diegoeck/pysib
-site_url: https://diegoeck.github.io/pysib/
+site_url: https://pysib.net/
 
 theme:
   name: material
