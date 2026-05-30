@@ -192,8 +192,7 @@ void sib_newton(double* tetafim)
             mode=0;
             grad(tetatemp,J2);
 
-            if (J2[0]>J1[0] || !isfinite(tetatemp[0]))
-//            if (J2[0]>J1[0])
+            if (J2[0]>J1[0] || !isfinite(J2[0]) || !isfinite(tetatemp[0]))
             {
                 //printf("ERRO \n");
                 for (k = 0; k < dteta; k++)
@@ -209,10 +208,10 @@ void sib_newton(double* tetafim)
             }
         }
 
-        if (j==10)
-        {
-            break;
-        }
+        // if (j==10)
+        // {
+        //     break;
+        // }
 
         
         

@@ -15,11 +15,11 @@ H_num, H_den = [1, -0.5], [1, -1.5, 0.7]
 e = 0.05 * np.random.randn(N)
 y = lfilter(G_num, G_den, u) + lfilter(H_num, H_den, e)
 
-theta, m = sib.bj(u, y, nb=1, nc=1, nd=2, nf=1, nz=1)
+theta, m = pysib.bj(u, y, nb=1, nc=1, nd=2, nf=1, nz=1)
 print("theta:", theta)
 
-yp = sib.predict(u, y, m)
-ys = sib.simulate(u, m)
+yp = pysib.predict(u, y, m)
+ys = pysib.simulate(u, m)
 
 plt.plot(t, y, "b.-", label="Data")
 plt.plot(t, yp, "g.-", label="Prediction")

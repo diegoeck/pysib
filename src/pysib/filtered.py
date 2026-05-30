@@ -34,8 +34,8 @@ def oe_filtered(u, y, nb, nf, nz):
     uf = lfilter([1 - FF[0]], [1, -FF[0]], u)
     yf = lfilter([1 - FF[0]], [1, -FF[0]], y)
     theta0, _ = arx(uf, yf, nf, nb, nz)
-    theta1 = np.concatenate((theta0[nb:nb + nf], theta0[:nb]))
-
+    theta1 = np.concatenate((theta0[nf:], theta0[:nf]))
+    
     for i in range(len(FF)):
         uf = lfilter([1 - FF[i]], [1, -FF[i]], u)
         yf = lfilter([1 - FF[i]], [1, -FF[i]], y)

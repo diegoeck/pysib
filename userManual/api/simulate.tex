@@ -1,0 +1,35 @@
+\documentclass[../main]{subfiles}
+\begin{document}
+\newpage
+
+\subsubsection{\texttt{simulate} --- Noise-free simulation}
+
+\begin{lstlisting}
+ys = pysib.simulate(u, m)
+\end{lstlisting}
+
+Computes the open-loop, noise-free model output
+\[
+  y_s(t) = G(q^{-1})\,u(t) = \frac{B(q^{-1})}{A(q^{-1})\,F(q^{-1})}\,u(t).
+\]
+Only the input signal is required; the noise polynomials $C$ and $D$
+are not used.  Comparing $y_s$ against measured outputs on a
+validation experiment assesses the quality of the plant dynamics,
+independently of the noise model.
+
+\subsubsection*{Arguments}
+\begin{center}
+\begin{tabular}{lll}
+  \toprule
+  Name & Type & Description \\
+  \midrule
+  \texttt{u} & array\_like & Input signal. \\
+  \texttt{m} & dict & Model dictionary with keys \texttt{A, B, C, D, F}. \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\subsubsection*{Returns}
+\texttt{ys}: ndarray of simulated output values, same length as \texttt{u}.
+
+\end{document}

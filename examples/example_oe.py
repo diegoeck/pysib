@@ -11,13 +11,13 @@ u = np.sign(np.sin(2 * np.pi * t / 100))  # square wave
 # True OE model:  y(t) = u(t-1) / (1 - 0.9*z^-1) + e(t)
 y = lfilter([0, 1], [1, -0.9], u) + 0.01 * np.random.randn(N)
 
-theta_oe, m_oe = sib.oe(u, y, nb=1, nf=1, nz=1)
-theta_sm, m_sm = sib.sm(u, y, nb=1, nf=1, nz=1)
+theta_oe, m_oe = pysib.oe(u, y, nb=1, nf=1, nz=1)
+theta_sm, m_sm = pysib.sm(u, y, nb=1, nf=1, nz=1)
 print("OE  theta:", theta_oe)
 print("SM  theta:", theta_sm)
 
-yp = sib.predict(u, y, m_oe)
-ys = sib.simulate(u, m_oe)
+yp = pysib.predict(u, y, m_oe)
+ys = pysib.simulate(u, m_oe)
 
 plt.plot(t, y, "b.-", label="Data")
 plt.plot(t, yp, "g.-", label="Prediction (OE)")

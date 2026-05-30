@@ -1,0 +1,34 @@
+\documentclass[../main]{subfiles}
+\begin{document}
+\newpage
+
+\subsubsection{\texttt{predict} --- One-step-ahead prediction}
+
+\begin{lstlisting}
+yp = pysib.predict(u, y, m)
+\end{lstlisting}
+
+Computes the one-step-ahead prediction:
+\[
+  \hat{y}(t \mid t-1) = y(t) + H^{-1}(q^{-1})
+  \bigl[ G(q^{-1})\,u(t) - y(t) \bigr],
+\]
+where $G = B/(AF)$ and $H = C/(AD)$.
+
+\subsubsection*{Arguments}
+\begin{center}
+\begin{tabular}{lll}
+  \toprule
+  Name & Type & Description \\
+  \midrule
+  \texttt{u} & array\_like & Input signal. \\
+  \texttt{y} & array\_like & Output signal. \\
+  \texttt{m} & dict & Model dictionary with keys \texttt{A, B, C, D, F}. \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\subsubsection*{Returns}
+\texttt{yp}: ndarray of predicted output values, same length as \texttt{u}.
+
+\end{document}

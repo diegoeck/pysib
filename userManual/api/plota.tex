@@ -1,0 +1,30 @@
+\documentclass[../main]{subfiles}
+\begin{document}
+\newpage
+
+\subsubsection{\texttt{plota} --- Monte Carlo plot}
+
+\begin{lstlisting}
+Torg = pysib.plota(T, a)
+\end{lstlisting}
+
+Sorts the columns of a Monte Carlo parameter matrix by the value in
+row \texttt{a} and plots all rows against the run index.
+
+\subsubsection*{Arguments}
+\begin{center}
+\begin{tabular}{lll}
+  \toprule
+  Name & Type & Description \\
+  \midrule
+  \texttt{T} & ndarray, shape $(n_\theta, n_\text{runs})$
+             & Matrix of parameter estimates from Monte Carlo runs. \\
+  \texttt{a} & int & Row index used for sorting (0-based). \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\subsubsection*{Returns}
+\texttt{Torg}: ndarray --- parameter matrix sorted by row \texttt{a}.
+
+\end{document}
