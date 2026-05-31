@@ -5,6 +5,7 @@
 - `src/pysib/_c/` contains C extensions compiled via `setuptools.Extension` — one `.so` per algorithm (OE, ARMAX, BJ).
 - `tests/test_basic.py` covers all public functions with pytest.
 - ACM TOMS Algorithm article draft is in `docs/paper/` using `acmart` and BibTeX.
+- Article publication support files are in `docs/paper/publication/`.
 - User manual in LaTeX is in `docs/manual/`; article and manual go to `docs/` (not PyPI).
 
 ## Build & Install
