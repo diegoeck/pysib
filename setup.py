@@ -48,4 +48,5 @@ bj_module = Extension(
 
 setup(
     ext_modules=[oe_module, armax_module, bj_module],
+    exclude_package_data={"pysib._c": ["*.c", "*.h"]},
 )
