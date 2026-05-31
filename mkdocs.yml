@@ -17,6 +17,22 @@ theme:
 
 nav:
   - Home: index.md
+  - Getting Started:
+      - Installation: installation.md
+      - Quick Start: quickstart.md
+      - Basic Concepts: basic-concepts.md
+  - User Guide:
+      - Model Structures: model-structures.md
+      - Choosing an Estimator: choosing-an-estimator.md
+      - Prediction and Simulation: prediction-simulation.md
+      - Examples: examples.md
+  - API Reference:
+      - Estimators: api/estimators.md
+      - Prediction and Simulation: api/prediction-simulation.md
+      - Utilities: api/utilities.md
+  - Publications:
+      - User Manual: manual/main.pdf
+      - ACM TOMS Paper: paper/main.pdf
 
 markdown_extensions:
   - pymdownx.highlight:

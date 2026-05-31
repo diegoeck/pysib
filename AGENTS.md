@@ -15,8 +15,15 @@
 ## Focused Verification
 - Run tests: `python3 -m pytest tests/ -v`
 - Quick smoke: `python3 -c "import pysib; import numpy as np; u=np.sin(np.arange(80)/5); y=u+0.01*np.random.randn(80); pysib.oe(u,y,1,1,0); print('OK')"`
+- Build site: GitHub Actions installs MkDocs and runs `python -m mkdocs build --strict`.
 - Build article: `make` from `docs/paper/`.
 - Build manual: `make` from `docs/manual/`.
+
+## Documentation Strategy
+- `docs/index.md` is the MkDocs landing page for `pysib.net`.
+- The MkDocs site is intended to become the main user-facing documentation.
+- Keep `README.md` concise and point users to the site; use PyPI metadata to link to the site when publishing.
+- Do not reorganize `docs/manual/` or `docs/paper/` as part of the current site cleanup unless explicitly requested.
 
 ## Architecture
 - `arx.py`, `sm.py`, `correlation.py`, `iv.py` → pure NumPy/SciPy (no C).

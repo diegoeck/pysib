@@ -4,9 +4,9 @@ import matplotlib.pyplot as plt
 
 def plota(T, a):
     """
-    Plot Monte-Carlo data ordered by parameter *a*.
+    Torg = pysib.plota(T, a)
 
-    Torg = sib_plota(T, a)
+    Plot Monte-Carlo data ordered by parameter *a*.
 
     Parameters
     ----------

@@ -3,10 +3,12 @@ import numpy as np
 
 def correlation(u, y, na, nb, nz, M=20, z=None):
     """
+    theta, m = pysib.correlation(u, y, na, nb, nz, M=20, z=None)
+
     ARX identification by correlation error minimization.
 
-    Minimizes ||r_{ez}(tau)||^2 over tau = 0 .. M-2, where
-    r_{ez}(tau) is the cross-correlation between the prediction
+    Minimizes ||r_ez(tau)||^2 over tau = 0 .. M-1, where
+    r_ez(tau) is the cross-correlation between the prediction
     error e(t) and the instrument z(t-tau). If z is not provided,
     the input u is used as the instrument.
 
@@ -21,7 +23,7 @@ def correlation(u, y, na, nb, nz, M=20, z=None):
     nb : int
         Number of B parameters.
     nz : int
-        Input delay.
+        Input delay in samples. The returned B polynomial includes nz leading zeros.
     M : int, optional
         Number of correlation lags (default 20).
     z : array_like, optional
@@ -76,7 +78,7 @@ def correlation(u, y, na, nb, nz, M=20, z=None):
         for k in range(n_theta):
             R[tau, k] = np.mean(z_tau * phi[win, k])
 
-    # θ = (RᵀR)⁻¹ Rᵀ r_zy
+    # theta = (R.T @ R)^-1 @ R.T @ r_zy
     theta = np.linalg.lstsq(R, r_zy, rcond=None)[0]
 
     m = {

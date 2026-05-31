@@ -1,79 +1,62 @@
-# pysib
+# pysib — System Identification Toolbox
 
-System Identification Toolbox (Slow is Better)
+**Slow is Better.** `pysib` is a Python toolbox for identifying discrete-time SISO dynamic systems from input/output data.
 
-## Description
+The package implements classical polynomial model structures used in system identification, with an emphasis on reliable model estimation rather than fast black-box routines.
 
-Python toolbox for parameter identification of dynamic systems.
-The focus is obtaining good models, not fast algorithms.
-
-Implemented methods:
-
-* Stieglitz-McBride
-* Prediction Error Method with ARX structure
-* Prediction Error Method with ARMAX structure
-* Prediction Error Method with ARMAX structure — improved convergence (filtered)
-* Prediction Error Method with OE structure
-* Prediction Error Method with OE structure — improved convergence (filtered)
-* Prediction Error Method with BJ structure
-* Prediction Error Method with BJ structure — improved convergence (filtered)
+Documentation: <https://pysib.net/>
 
 ## Install
+
+```bash
+pip install pysib
+```
+
+Requirements: Python >= 3.9, NumPy, SciPy, Matplotlib, and LAPACK (Accelerate on macOS, `liblapack` on Linux).
+
+For development from a local checkout:
 
 ```bash
 pip install -e .
 ```
 
-Requires: numpy, scipy. LAPACK (Accelerate on macOS, liblapack on Linux).
-
-## Use
+## Quick Start
 
 ```python
 import numpy as np
 import pysib
+from scipy.signal import lfilter
 
 N = 1000
 u = np.sin(np.arange(N) * 2 * np.pi / 100)
-G_num, G_den = [0, 1], [1, -0.9]
-H_num, H_den = [1, 0], [1, -0.9]
+y = lfilter([0, 1], [1, -0.9], u) + 0.01 * np.random.randn(N)
 
-# Generate data (simple ARX process)
-from scipy.signal import lfilter
-y = lfilter(G_num, G_den, u) + lfilter(H_num, H_den, np.random.randn(N))
+# Estimate an ARX model by least squares
+theta, model = pysib.arx(u, y, na=1, nb=1, nz=1)
 
-theta, m = pysib.arx(u, y, na=1, nb=1, nz=1)
-print(theta)
+# Estimate an Output Error model with the nonlinear optimizer
+theta, model = pysib.oe(u, y, nb=1, nf=1, nz=1)
 
-yp = pysib.predict(u, y, m)
-ys = pysib.simulate(u, m)
+# Use the estimated model
+yp = pysib.predict(u, y, model)
+ys = pysib.simulate(u, model)
 ```
 
-### OE example
+All estimators return `(theta, model)`, where `theta` is the estimated parameter vector and `model` is a dictionary with polynomial arrays `A`, `B`, `C`, `D`, and `F`.
 
-```python
-u = np.sin(np.arange(100) * 2 * np.pi / 100)
-y = lfilter([0, 1], [1, -0.9], u) + 0.01 * np.random.randn(100)
+## Included API
 
-theta, m = pysib.oe(u, y, nb=1, nf=1, nz=1)
-```
+- Estimators: `arx`, `iv`, `correlation`, `sm`, `oe`, `armax`, `bj`, `oe_filtered`, `armax_filtered`, `bj_filtered`.
+- Model use: `predict`, `simulate`.
+- Utility: `plota`.
 
-### API
+See <https://pysib.net/> for the complete documentation.
 
-| Function | Description |
-|----------|-------------|
-| `pysib.arx(u, y, na, nb, nz)` | ARX estimator (pure NumPy) |
-| `pysib.sm(u, y, nb, nf, nz)` | Stieglitz-McBride |
-| `pysib.oe(u, y, nb, nf, nz)` | Output Error (C optimizer) |
-| `pysib.armax(u, y, na, nb, nc, nz)` | ARMAX (C optimizer) |
-| `pysib.bj(u, y, nb, nc, nd, nf, nz)` | Box-Jenkins (C optimizer) |
-| `pysib.oe_filtered(...)` | OE with filtered convergence |
-| `pysib.armax_filtered(...)` | ARMAX with filtered convergence |
-| `pysib.bj_filtered(...)` | BJ with filtered convergence |
-| `pysib.predict(u, y, m)` | One-step-ahead prediction |
-| `pysib.simulate(u, m)` | Noise-free simulation |
+## Publications
 
-All estimators return `(theta, m)` where `m` is a dict with keys
-`A, B, C, D, F` (1D numpy arrays representing polynomial coefficients).
+- Documentation site: <https://pysib.net/>
+- User Manual: <https://pysib.net/manual/main.pdf>
+- ACM TOMS Paper: <https://pysib.net/paper/main.pdf>
 
 ## Test
 

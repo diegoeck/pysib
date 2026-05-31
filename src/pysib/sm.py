@@ -6,9 +6,9 @@ from .arx import arx
 
 def sm(u, y, nb, nf, nz):
     """
-    [theta, m] = sib_sm(u, y, nb, nf, nz)
+    theta, m = pysib.sm(u, y, nb, nf, nz)
 
-    Stieglitz-McBride method for OE structure.
+    Stieglitz-McBride estimator for the Output Error structure.
 
              B(z)
       y(t) = ---- u(t-nz) + e(t)
@@ -25,7 +25,7 @@ def sm(u, y, nb, nf, nz):
     nf : int
         Number of parameters in F(z) = 1 + f_1 z^-1 + ... + f_nf z^-nf.
     nz : int
-        Input delay.
+        Input delay in samples. The returned B polynomial includes nz leading zeros.
 
     Returns
     -------

@@ -6,9 +6,9 @@ from ._c._pysib_oe_core import identify as _oe_identify
 
 def oe(u, y, nb, nf, nz):
     """
-    [theta, m] = sib_oe(u, y, nb, nf, nz)
+    theta, m = pysib.oe(u, y, nb, nf, nz)
 
-    Prediction error method with OE structure.
+    Prediction-error estimator for the Output Error structure.
 
              B(z)
       y(t) = ---- u(t-nz) + e(t)
@@ -25,7 +25,7 @@ def oe(u, y, nb, nf, nz):
     nf : int
         Number of parameters in F(z) = 1 + f_1 z^-1 + ... + f_nf z^-nf.
     nz : int
-        Input delay.
+        Input delay in samples. The returned B polynomial includes nz leading zeros.
 
     Returns
     -------

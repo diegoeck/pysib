@@ -3,9 +3,9 @@ import numpy as np
 
 def arx(u, y, na, nb, nz):
     """
-    [theta, m] = sib_arx(u, y, na, nb, nz)
+    theta, m = pysib.arx(u, y, na, nb, nz)
 
-    Prediction error method with ARX structure.
+    Least-squares estimator for the ARX structure.
 
              B(z)            1
       y(t) = ---- u(t-nz) + ---- e(t)
@@ -22,7 +22,7 @@ def arx(u, y, na, nb, nz):
     nb : int
         Number of parameters in B(z) = b_1 + b_2 z^-1 + ... + b_nb z^(1-nb).
     nz : int
-        Input delay.
+        Input delay in samples. The returned B polynomial includes nz leading zeros.
 
     Returns
     -------

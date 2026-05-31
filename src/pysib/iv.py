@@ -3,7 +3,7 @@ import numpy as np
 
 def iv(u, y1, y2, na, nb, nz):
     """
-    [theta, m] = sib_iv(u, y1, y2, na, nb, nz)
+    theta, m = pysib.iv(u, y1, y2, na, nb, nz)
 
     Instrumental variable (IV) method for ARX structure, using
     regressors from a second experiment as instruments.
@@ -14,8 +14,8 @@ def iv(u, y1, y2, na, nb, nz):
     independent noise, the regressor matrix of y2 serves as a
     valid instrument matrix Z.
 
-    Solves theta = (Zᵀ Φ₁)⁻¹ Zᵀ y₁, where:
-      - Φ₁ = regressor matrix built from u and y1
+    Solves theta = (Z.T @ Phi1)^-1 @ Z.T @ y1, where:
+      - Phi1 = regressor matrix built from u and y1
       - Z   = regressor matrix built from u and y2
 
     Parameters
@@ -31,7 +31,7 @@ def iv(u, y1, y2, na, nb, nz):
     nb : int
         Number of B parameters.
     nz : int
-        Input delay.
+        Input delay in samples. The returned B polynomial includes nz leading zeros.
 
     Returns
     -------
@@ -80,7 +80,7 @@ def iv(u, y1, y2, na, nb, nz):
     Z = Z[skip:]
     y1 = y1[skip:]
 
-    # theta = (Zᵀ Φ₁)⁻¹ Zᵀ y₁  (via least squares for robustness)
+    # theta = (Z.T @ Phi1)^-1 @ Z.T @ y1 (via least squares for robustness)
     A = Z.T @ phi1
     b = Z.T @ y1
     theta = np.linalg.lstsq(A, b, rcond=None)[0]

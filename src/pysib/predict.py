@@ -4,7 +4,7 @@ import numpy as np
 
 def predict(u, y, m):
     """
-    yp = sib_predict(u, y, m)
+    yp = pysib.predict(u, y, m)
 
     One-step-ahead prediction.
 
@@ -37,7 +37,7 @@ def predict(u, y, m):
 
 def simulate(u, m):
     """
-    ys = sib_simulate(u, m)
+    ys = pysib.simulate(u, m)
 
     Simulate model output (noise-free).
 

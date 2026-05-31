@@ -6,9 +6,9 @@ from ._c._pysib_armax_core import identify as _armax_identify
 
 def armax(u, y, na, nb, nc, nz):
     """
-    [theta, m] = sib_armax(u, y, na, nb, nc, nz)
+    theta, m = pysib.armax(u, y, na, nb, nc, nz)
 
-    Prediction error method with ARMAX structure.
+    Prediction-error estimator for the ARMAX structure.
 
              B(z)           C(z)
       y(t) = ---- u(t-nz) + ---- e(t)
@@ -27,7 +27,7 @@ def armax(u, y, na, nb, nc, nz):
     nc : int
         Number of parameters in C(z).
     nz : int
-        Input delay.
+        Input delay in samples. The returned B polynomial includes nz leading zeros.
 
     Returns
     -------

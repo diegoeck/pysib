@@ -6,9 +6,9 @@ from ._c._pysib_bj_core import identify as _bj_identify
 
 def bj(u, y, nb, nc, nd, nf, nz):
     """
-    [theta, m] = sib_bj(u, y, nb, nc, nd, nf, nz)
+    theta, m = pysib.bj(u, y, nb, nc, nd, nf, nz)
 
-    Prediction error method with BJ structure.
+    Prediction-error estimator for the Box-Jenkins structure.
 
              B(z)           C(z)
       y(t) = ---- u(t-nz) + ---- e(t)
@@ -29,7 +29,7 @@ def bj(u, y, nb, nc, nd, nf, nz):
     nf : int
         Number of parameters in F(z).
     nz : int
-        Input delay.
+        Input delay in samples. The returned B polynomial includes nz leading zeros.
 
     Returns
     -------

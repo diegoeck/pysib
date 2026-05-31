@@ -9,20 +9,29 @@ from ._c._pysib_bj_core import identify as _bj_identify
 
 def oe_filtered(u, y, nb, nf, nz):
     """
-    OE method with improved filtered convergence.
+    theta, m = pysib.oe_filtered(u, y, nb, nf, nz)
+
+    Filtered continuation variant of the Output Error estimator.
 
     Parameters
     ----------
-    u : array_like  — Input signal.
-    y : array_like  — Output signal.
-    nb : int        — Number of B parameters.
-    nf : int        — Number of F parameters.
-    nz : int        — Input delay.
+    u : array_like
+        Input signal.
+    y : array_like
+        Output signal.
+    nb : int
+        Number of B parameters.
+    nf : int
+        Number of F parameters.
+    nz : int
+        Input delay in samples. The returned B polynomial includes nz leading zeros.
 
     Returns
     -------
-    theta : ndarray  — [b_1..b_nb, f_1..f_nf]
-    m : dict         — Model with keys A, B, C, D, F.
+    theta : ndarray
+        [b_1..b_nb, f_1..f_nf]
+    m : dict
+        Model with keys A, B, C, D, F.
     """
     u = np.asarray(u, dtype=float).ravel()
     y = np.asarray(y, dtype=float).ravel()
@@ -56,21 +65,31 @@ def oe_filtered(u, y, nb, nf, nz):
 
 def armax_filtered(u, y, na, nb, nc, nz):
     """
-    ARMAX method with improved filtered convergence.
+    theta, m = pysib.armax_filtered(u, y, na, nb, nc, nz)
+
+    Filtered continuation variant of the ARMAX estimator.
 
     Parameters
     ----------
-    u : array_like  — Input signal.
-    y : array_like  — Output signal.
-    na : int        — Number of A parameters.
-    nb : int        — Number of B parameters.
-    nc : int        — Number of C parameters.
-    nz : int        — Input delay.
+    u : array_like
+        Input signal.
+    y : array_like
+        Output signal.
+    na : int
+        Number of A parameters.
+    nb : int
+        Number of B parameters.
+    nc : int
+        Number of C parameters.
+    nz : int
+        Input delay in samples. The returned B polynomial includes nz leading zeros.
 
     Returns
     -------
-    theta : ndarray  — [a_1..a_na, b_1..b_nb, c_1..c_nc]
-    m : dict         — Model with keys A, B, C, D, F.
+    theta : ndarray
+        [a_1..a_na, b_1..b_nb, c_1..c_nc]
+    m : dict
+        Model with keys A, B, C, D, F.
     """
     u = np.asarray(u, dtype=float).ravel()
     y = np.asarray(y, dtype=float).ravel()
@@ -101,22 +120,33 @@ def armax_filtered(u, y, na, nb, nc, nz):
 
 def bj_filtered(u, y, nb, nc, nd, nf, nz):
     """
-    BJ method with improved filtered convergence.
+    theta, m = pysib.bj_filtered(u, y, nb, nc, nd, nf, nz)
+
+    Filtered continuation variant of the Box-Jenkins estimator.
 
     Parameters
     ----------
-    u : array_like  — Input signal.
-    y : array_like  — Output signal.
-    nb : int        — Number of B parameters.
-    nc : int        — Number of C parameters.
-    nd : int        — Number of D parameters.
-    nf : int        — Number of F parameters.
-    nz : int        — Input delay.
+    u : array_like
+        Input signal.
+    y : array_like
+        Output signal.
+    nb : int
+        Number of B parameters.
+    nc : int
+        Number of C parameters.
+    nd : int
+        Number of D parameters.
+    nf : int
+        Number of F parameters.
+    nz : int
+        Input delay in samples. The returned B polynomial includes nz leading zeros.
 
     Returns
     -------
-    theta : ndarray  — [b_1..b_nb, c_1..c_nc, d_1..d_nd, f_1..f_nf]
-    m : dict         — Model with keys A, B, C, D, F.
+    theta : ndarray
+        [b_1..b_nb, c_1..c_nc, d_1..d_nd, f_1..f_nf]
+    m : dict
+        Model with keys A, B, C, D, F.
     """
     u = np.asarray(u, dtype=float).ravel()
     y = np.asarray(y, dtype=float).ravel()
