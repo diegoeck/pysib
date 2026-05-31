@@ -17,3 +17,7 @@ build/
 *.fls
 *.fdb_latexmk
 *.synctex.gz
+
+# Local editor/tool configuration
+.claude/
+.vscode/
