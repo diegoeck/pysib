@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+Disallow: /paper/experiments/
+Disallow: /paper/publication/
+
+Sitemap: https://pysib.net/sitemap.xml
