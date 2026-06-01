@@ -5,9 +5,6 @@ on:
     tags: ["v*"]
   workflow_dispatch:
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-
 jobs:
   build_wheels:
     name: Build wheel for ${{ matrix.os }}
@@ -27,10 +24,15 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Build wheels
-        uses: pypa/cibuildwheel@v2.23.4
+      - uses: actions/setup-python@v6
 
-      - uses: actions/upload-artifact@v5
+      - name: Install cibuildwheel
+        run: python -m pip install cibuildwheel==3.4.1
+
+      - name: Build wheels
+        run: python -m cibuildwheel --output-dir wheelhouse
+
+      - uses: actions/upload-artifact@v7
         with:
           name: wheels-${{ matrix.os }}
           path: wheelhouse/*.whl
