@@ -30,6 +30,7 @@ nav:
       - Estimators: api/estimators.md
       - Prediction and Simulation: api/prediction-simulation.md
       - Utilities: api/utilities.md
+  - Changelog: changelog.md
   - Publications:
       - User Manual: manual/main.pdf
       - ACM TOMS Paper: paper/main.pdf
