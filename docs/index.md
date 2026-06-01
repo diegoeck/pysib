@@ -96,6 +96,6 @@ All estimators return `(theta, model)`, where `theta` is the estimated parameter
 
 `pysib` is open-source software released under the MIT license and developed at Universidade Federal do Rio Grande do Sul, Brazil.
 
-pysib ports verified identification algorithms from the MATLAB System Identification Toolbox. A companion research article has been submitted to ACM Transactions on Mathematical Software.
+pysib is the Python port of [SIB](https://github.com/diegoeck/sib), a MATLAB toolbox for system identification. A companion research article describing the algorithms has been submitted to ACM Transactions on Mathematical Software.
 
 [:fontawesome-brands-github: GitHub](https://github.com/diegoeck/pysib) · [:material-school: User Manual](manual/main.pdf) · [:material-book-open-variant: Paper](paper/main.pdf)
