@@ -1,8 +1,24 @@
 # pysib — System Identification Toolbox
 
-**Slow is Better.** `pysib` is a Python toolbox for identifying discrete-time SISO dynamic systems from input/output data.
+## Slow is Better
 
-The package implements classical polynomial model structures used in system identification, with an emphasis on reliable model estimation rather than fast black-box routines.
+The name **SIB** works twice: it stands for **S**ystem **I**dentification tool**B**ox, and also for **S**low **I**s **B**etter — the philosophy behind every algorithm in this package.
+
+Just as *slow food* values careful preparation over fast food, `pysib` favours deliberate, incremental optimization over aggressive, high-risk steps. The nonlinear estimators take thousands of small, cautious steps: each iteration improves the model only slightly, and only if the fit actually gets better. It sounds slow — and it is — but the result is a level of reliability and precision that aggressive optimizers rarely achieve.
+
+And slow does not mean inefficient. The solvers are implemented in C at a very low level, with gradients and Gauss–Newton Hessians built from hand-coded sensitivity filters. The small steps are cheap, so many iterations still run fast. You get the best of both worlds: a search strategy that prioritizes quality, on an engine that recovers performance through low-level code.
+
+`pysib` implements classical polynomial model structures for parametric identification of discrete-time single-input single-output (SISO) dynamic systems from input/output data. The toolbox covers ARX, ARMAX, Output-Error (OE), and Box-Jenkins (BJ) structures using prediction-error minimization, together with auxiliary estimators (instrumental variables, Stieglitz–McBride, correlation) and filtered continuation schemes that reshape the cost function to escape local minima.
+
+## Features
+
+- Polynomial model structures: ARX, ARMAX, OE (Output-Error), BJ (Box-Jenkins)
+- Prediction-error minimization with linear and nonlinear optimizers
+- Auxiliary estimators: instrumental variables, correlation error minimization, Stieglitz–McBride
+- Filtered continuation schemes for avoiding local minima
+- One-step-ahead prediction and open-loop simulation from any estimated model
+- Monte Carlo diagnostic plots (`plota`)
+- Cross-platform binary wheels for macOS arm64 and Linux x86_64
 
 ## Install
 
@@ -79,5 +95,7 @@ All estimators return `(theta, model)`, where `theta` is the estimated parameter
 ## About
 
 `pysib` is open-source software released under the MIT license and developed at Universidade Federal do Rio Grande do Sul, Brazil.
+
+pysib ports verified identification algorithms from the MATLAB System Identification Toolbox. A companion research article has been submitted to ACM Transactions on Mathematical Software.
 
 [:fontawesome-brands-github: GitHub](https://github.com/diegoeck/pysib) · [:material-school: User Manual](manual/main.pdf) · [:material-book-open-variant: Paper](paper/main.pdf)
