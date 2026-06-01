@@ -27,10 +27,10 @@
 
 \title{\textbf{pysib} --- System Identification Toolbox\\[0.5em]
        \large User Manual\\[0.5em]
-       \normalsize Version 1.0}
+       \normalsize Version 0.2.0}
 \author{Diego Eckhard\\
         Universidade Federal do Rio Grande do Sul\\
-        \texttt{diegoeck@ufrgs.br}}
+        \texttt{diego@eckhard.com.br}}
 \date{}
 
 \begin{document}
@@ -129,10 +129,10 @@ and \texttt{simulate}, regardless of which estimator produced it.
 \end{tabular}
 \end{center}
 
-The C compiler and LAPACK are required to build the extension modules
-for the nonlinear estimators (OE, ARMAX, BJ) and their filtered
-variants.  On macOS, the Accelerate framework is available by default.
-On Linux (Debian/Ubuntu), install the dependencies with:
+The C compiler and LAPACK are required only when building from source,
+for example on platforms for which a binary wheel is not available.
+On macOS, the Accelerate framework is available by default.
+On Linux (Debian/Ubuntu), install the build dependencies with:
 
 \begin{lstlisting}
 sudo apt-get install gcc liblapack-dev
@@ -144,8 +144,10 @@ sudo apt-get install gcc liblapack-dev
 pip install pysib
 \end{lstlisting}
 
-The C extensions are compiled automatically during installation.
-A working C compiler and LAPACK must be available before running this
+On supported platforms, pip installs a binary wheel containing the
+compiled extension modules.  If no compatible wheel is available, pip
+falls back to building from the source distribution; in that case a
+working C compiler and LAPACK must be available before running this
 command.
 
 \subsection{Verifying the installation}
@@ -161,18 +163,18 @@ pip install pytest
 python -m pytest tests/ -v
 \end{lstlisting}
 
-\subsection{Running the driver programs}
+\subsection{Running examples}
 
-The \texttt{Python/drivers/} directory contains one driver script per
-numerical result presented in the article.  Each driver is
-self-contained and requires no interactive input.  To run all drivers:
+Example scripts are available in the repository under \texttt{examples/}.
+They are self-contained and can be run directly from the repository root,
+for example:
 
 \begin{lstlisting}
-cd Python/drivers
-make run
+python examples/example_arx.py
 \end{lstlisting}
 
-Expected outputs are stored in \texttt{Python/drivers/expected/}.
+The main user-facing documentation is available at
+\url{https://pysib.net/}.
 
 % =========================================================
 \newpage
