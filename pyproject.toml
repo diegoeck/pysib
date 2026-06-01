@@ -8,7 +8,7 @@ version = "0.2.0"
 description = "System Identification Toolbox (Slow is Better)"
 readme = "README.md"
 license = "MIT"
-authors = [{name = "Diego Eckhard", email = "diegoeck@ufrgs.br"}]
+authors = [{name = "Diego Eckhard", email = "diego@eckhard.com.br"}]
 requires-python = ">=3.9"
 keywords = [
     "system-identification",
