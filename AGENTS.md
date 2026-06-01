@@ -26,6 +26,14 @@
 - Keep `README.md` concise and point users to the site; use PyPI metadata to link to the site when publishing.
 - Do not reorganize `docs/manual/` or `docs/paper/` as part of the current site cleanup unless explicitly requested.
 
+## Release Process
+- Update the project changelog before creating a release tag.
+- Update package version, documentation, and manual PDF before the final release commit when needed.
+- Run focused tests/build checks before tagging.
+- Create the release tag only after the final release commit.
+- Publish PyPI artifacts and create the GitHub Release from the tag.
+- Use the changelog entry as the basis for GitHub Release notes.
+
 ## Architecture
 - `arx.py`, `sm.py`, `correlation.py`, `iv.py` → pure NumPy/SciPy (no C).
 - `oe.py`, `armax.py`, `bj.py` → ARX initial guess + C optimizer via `_c._pysib_*_core.identify()`.
