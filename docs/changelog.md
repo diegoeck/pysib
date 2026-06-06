@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Documentation
+
+- Added Zenodo DOI and citation metadata.
+
 ## v0.2.1 — 2026-06-06
 
 Documentation maintenance release.

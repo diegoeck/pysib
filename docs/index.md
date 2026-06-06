@@ -89,6 +89,7 @@ All estimators return `(theta, model)`, where `theta` is the estimated parameter
 
 ## Publications
 
+- [Software archive](https://doi.org/10.5281/zenodo.20572074)
 - [User Manual](manual/main.pdf)
 - [ACM TOMS Paper](paper/main.pdf)
 

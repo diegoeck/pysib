@@ -1,5 +1,7 @@
 # pysib — System Identification Toolbox
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20572074.svg)](https://doi.org/10.5281/zenodo.20572074)
+
 **Slow is Better.** `pysib` is a Python toolbox for identifying discrete-time SISO dynamic systems from input/output data.
 
 The package implements classical polynomial model structures used in system identification, with an emphasis on reliable model estimation rather than fast black-box routines.
@@ -55,6 +57,7 @@ See <https://pysib.net/> for the complete documentation.
 ## Publications
 
 - Documentation site: <https://pysib.net/>
+- Software archive: <https://doi.org/10.5281/zenodo.20572074>
 - User Manual: <https://pysib.net/manual/main.pdf>
 - ACM TOMS Paper: <https://pysib.net/paper/main.pdf>
 

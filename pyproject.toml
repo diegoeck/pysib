@@ -43,6 +43,7 @@ classifiers = [
 [project.urls]
 Homepage = "https://pysib.net/"
 Documentation = "https://pysib.net/"
+DOI = "https://doi.org/10.5281/zenodo.20572074"
 Source = "https://github.com/diegoeck/pysib"
 Issues = "https://github.com/diegoeck/pysib/issues"
 
