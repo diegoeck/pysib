@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.2.1 — 2026-06-06
+
+Documentation maintenance release.
+
+### Documentation
+
+- Improved the documentation landing page and site content.
+- Added and refined changelog documentation.
+- Split the conference and article papers into `paper-sysid` and `paper-toms` paths.
+- Corrected SIB/Python attribution text.
+
+### Infrastructure
+
+- Updated documentation and wheel-building workflow configuration.
+
+### Links
+
+- PyPI: <https://pypi.org/project/pysib/0.2.1/>
+- GitHub release: <https://github.com/diegoeck/pysib/releases/tag/v0.2.1>
+
 ## v0.2.0 — 2026-06-01
 
 First public release of `pysib`.
