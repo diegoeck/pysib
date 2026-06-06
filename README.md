@@ -1,6 +1,7 @@
 # pysib — System Identification Toolbox
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20572074.svg)](https://doi.org/10.5281/zenodo.20572074)
+
+[![DOI](https://zenodo.org/badge/1254529020.svg)](https://doi.org/10.5281/zenodo.20572074)
 [![PyPI](https://img.shields.io/pypi/v/pysib.svg)](https://pypi.org/project/pysib/)
 
 **Slow is Better.** `pysib` is a Python toolbox for identifying discrete-time SISO dynamic systems from input/output data.
