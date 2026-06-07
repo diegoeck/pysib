@@ -2,7 +2,7 @@
 
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.20572074-blue)](https://doi.org/10.5281/zenodo.20572074)
 [![PyPI](https://img.shields.io/pypi/v/pysib.svg)](https://pypi.org/project/pysib/)
-![License:MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.or/licenses/MIT)
+[![License:MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.or/licenses/MIT)
 
 **System Identification toolBox `pysib` is a Python toolbox for identifying discrete-time SISO dynamic systems from input/output data.
 
