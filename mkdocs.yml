@@ -7,9 +7,11 @@ site_url: https://pysib.net/
 
 theme:
   name: material
+  logo: assets/pysib-icon.svg
+  favicon: assets/pysib-icon.svg
   palette:
-    primary: indigo
-    accent: indigo
+    primary: blue
+    accent: teal
   features:
     - navigation.sections
     - search.suggest
