@@ -1,7 +1,9 @@
 User-agent: *
 Allow: /
 
-Disallow: /paper/experiments/
-Disallow: /paper/publication/
+Disallow: /paper-toms/experiments/
+Disallow: /paper-toms/publication/
+Disallow: /paper-sysid/experiments/
+Disallow: /paper-sysid/ifacconf_latex/
 
 Sitemap: https://pysib.net/sitemap.xml
