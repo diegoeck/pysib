@@ -91,7 +91,8 @@ All estimators return `(theta, model)`, where `theta` is the estimated parameter
 
 - [Software archive](https://doi.org/10.5281/zenodo.20572074)
 - [User Manual](manual/main.pdf)
-- [ACM TOMS Paper](paper/main.pdf)
+- [ACM TOMS Paper](paper-toms/main.pdf)
+- [IFAC SYSID Paper](paper-sysid/main.pdf)
 
 ## About
 
@@ -99,4 +100,4 @@ All estimators return `(theta, model)`, where `theta` is the estimated parameter
 
 pysib is the Python port of [SIB](https://github.com/diegoeck/sib), a MATLAB toolbox for system identification. A companion research article describing the algorithms has been submitted to ACM Transactions on Mathematical Software.
 
-[:fontawesome-brands-github: GitHub](https://github.com/diegoeck/pysib) · [:material-school: User Manual](manual/main.pdf) · [:material-book-open-variant: Paper](paper/main.pdf)
+[:fontawesome-brands-github: GitHub](https://github.com/diegoeck/pysib) · [:material-school: User Manual](manual/main.pdf) · [:material-book-open-variant: TOMS Paper](paper-toms/main.pdf) · [:material-file-document: SYSID Paper](paper-sysid/main.pdf)

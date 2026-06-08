@@ -33,7 +33,8 @@ nav:
   - Changelog: changelog.md
   - Publications:
       - User Manual: manual/main.pdf
-      - ACM TOMS Paper: paper/main.pdf
+      - ACM TOMS Paper: paper-toms/main.pdf
+      - IFAC SYSID Paper: paper-sysid/main.pdf
 
 markdown_extensions:
   - pymdownx.highlight:
