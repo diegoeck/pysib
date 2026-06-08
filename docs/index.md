@@ -1,5 +1,9 @@
 # pysib — System Identification Toolbox
 
+**System Identification Toolbox.** `pysib` is a Python toolbox for identifying discrete-time SISO dynamic systems from input/output data.
+
+The package implements classical polynomial model structures used in system identification, with an emphasis on reliable model estimation rather than fast black-box routines.
+
 ## Slow is Better
 
 The name **SIB** works twice: it stands for **S**ystem **I**dentification tool**B**ox, and also for **S**low **I**s **B**etter — the philosophy behind every algorithm in this package.
@@ -98,6 +102,6 @@ All estimators return `(theta, model)`, where `theta` is the estimated parameter
 
 `pysib` is open-source software released under the MIT license and developed at Universidade Federal do Rio Grande do Sul, Brazil.
 
-pysib is the Python port of [SIB](https://github.com/diegoeck/sib), a MATLAB toolbox for system identification. A companion research article describing the algorithms has been submitted to ACM Transactions on Mathematical Software.
+The toolbox is designed for users who need transparent, classical system-identification methods in Python, with documentation, examples, and companion papers describing the algorithms.
 
 [:fontawesome-brands-github: GitHub](https://github.com/diegoeck/pysib) · [:material-school: User Manual](manual/main.pdf) · [:material-book-open-variant: TOMS Paper](paper-toms/main.pdf) · [:material-file-document: SYSID Paper](paper-sysid/main.pdf)
