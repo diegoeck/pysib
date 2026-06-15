@@ -21,19 +21,23 @@
   (e-mail: diegoeck@ufrgs.br)}
 
 \begin{abstract}
-This article describes \texttt{pysib}, a Python toolbox for SISO
-polynomial system identification.  The package implements ARX, ARMAX, OE, and
-Box--Jenkins structures using a common five-polynomial representation and shared
-prediction and simulation routines.  Its nonlinear prediction-error estimators
-combine ARX-based initialization, a dedicated local optimization procedure, and
-filtered-continuation variants interpreted as cost-function shaping.  The
-software artifact is identified by a Zenodo DOI and is accompanied by the
-scripts used in the reported experiments.  The numerical study considers two OE
-benchmarks: a moderate-noise comparison with the SIPPY OE implementation and a
-nonconvex example comparing standard OE with filtered continuation.  In the
-nonconvex benchmark, filtered continuation raises the empirical success rate
-from 60\% to 100\% relative to standard OE, illustrating its role as a
-cost-function-shaping mechanism.
+Discrete-time polynomial input--output models (ARX, ARMAX, OE, and
+Box--Jenkins) are usually estimated by prediction-error methods, but for OE,
+ARMAX, and BJ the finite-sample criterion is nonconvex: the estimate a user
+actually obtains is set by the initialization and the optimization procedure,
+not only by the asymptotic theory.  This article documents the dedicated
+optimization strategy behind \texttt{pysib}, an open-source Python toolbox for
+SISO polynomial system identification---an ARX-based initialization, a
+smoothed-gradient phase, an incremental Gauss--Newton refinement, and filtered
+continuation interpreted as cost-function shaping.  This strategy produced the
+filtered-continuation results reported by the author in earlier work but had not
+previously been described or released; it is given here in full and as open
+Python software, with a common five-polynomial representation, shared prediction
+and simulation routines, and the scripts and archived release needed to
+reproduce the experiments.  On a moderate-noise OE benchmark the strategy returns
+estimates far more concentrated around the true parameters than a
+general-purpose nonlinear-programming solver, and on a harder nonconvex benchmark
+filtered continuation raises the success rate from 60\% to 100\%.
 \end{abstract}
 
 \begin{keyword}
@@ -81,20 +85,40 @@ nonlinear PEM estimators, filtered variants, and a common prediction and
 simulation interface.  This focus makes it possible to expose the polynomial
 structure used by the estimators while keeping the public interface compact.
 
-The contribution of this article is threefold.  First, it presents the dedicated
-numerical strategy used by \texttt{pysib} for nonlinear PEM estimation in OE,
-ARMAX, and BJ structures.  The strategy combines ARX-based initialization, a
-smoothed gradient phase, a Gauss--Newton refinement, and filtered continuation.
-The filtered variants are presented as a cost-function shaping mechanism: they
-guide the optimizer through intermediate filtered criteria before returning to
-the original prediction-error problem.  Second, the article describes the open
-implementation of this strategy in \texttt{pysib}, including the polynomial
-model convention and the common prediction and simulation interface.  Third, it
-provides reproducible OE experiments comparing \texttt{pysib} with the SIPPY OE
-implementation \citep{sippy} and evaluating filtered continuation on a nonconvex
-benchmark.  No new PEM theory is claimed; the emphasis is on algorithmic
-implementation, reproducible evaluation, and numerical evidence for the tested
-SISO OE settings.
+Open Python tooling for this classical polynomial PEM setting is comparatively
+scarce, and the existing packages mostly address different problems.
+\texttt{SysIdentPy} targets NARMAX and other nonlinear model classes, with model
+structure selection and least-squares-type parameter estimation rather than the
+nonconvex transfer-function PEM considered here \citep{sysidentpy}.
+General-purpose control libraries such as \texttt{python-control} focus on
+analysis and design and offer only limited identification functionality
+\citep{pythoncontrol}.  The closest comparator is SIPPY, which does implement the
+ARX, ARMAX, OE, and BJ structures, but casts the polynomial criteria as a general
+nonlinear program solved with an off-the-shelf optimizer \citep{sippy}.  These
+tools are complementary rather than directly comparable; \texttt{pysib} occupies
+the specific niche of SISO polynomial PEM and pairs the polynomial convention
+with an optimization procedure designed around the structure of the recursive
+PEM criterion, which is the part of the toolbox examined in most detail below.
+
+The contribution of this article is threefold.  First, it gives the first
+explicit description of the dedicated numerical strategy used by \texttt{pysib}
+for nonlinear PEM estimation in OE, ARMAX, and BJ structures.  The strategy
+combines ARX-based initialization, a smoothed gradient phase, a Gauss--Newton
+refinement, and filtered continuation interpreted as cost-function shaping, in
+which the filters guide the optimizer through intermediate filtered criteria
+before returning to the original prediction-error problem.  This strategy
+underlies the filtered-continuation results previously reported by the author
+\citep{eckhard2013input,eckhard2017cost}, where it was used to produce
+comparisons against established identification toolboxes but was never itself
+documented.  Second, the article provides an open-source Python implementation
+of the strategy, with a consistent polynomial model convention and a common
+prediction and simulation interface, addressing the scarcity of Python tooling
+for classical polynomial PEM.  Third, it reports reproducible OE experiments that
+isolate the optimizer against a general-purpose solver and evaluate filtered
+continuation on a nonconvex benchmark.  No new PEM theory is claimed; the
+emphasis is on disclosing and documenting an effective optimization strategy,
+releasing it as open software, and providing reproducible numerical evidence for
+the tested SISO OE settings.
 
 The remainder of the article is organized as follows.  Section~\ref{sec:polynomial-siso-models}
 reviews the polynomial SISO model convention and PEM criterion.
@@ -251,10 +275,10 @@ criterion is defined by \eqref{eq:pem-criterion}, but for OE, ARMAX, and BJ the
 finite-sample optimization problem is nonconvex and the result may depend on
 the initial point and on the path followed by the optimizer.  A software
 implementation must therefore make concrete choices about initialization,
-descent safeguards, curvature information, and failure handling.  The purpose of
-the implementation is not to add a new theoretical convergence result, but to
-define a reproducible local-search strategy for the SISO polynomial models
-considered by the toolbox \citep{goodwin2003}.
+descent safeguards, curvature information, and failure handling.  The aim is not
+a new global-convergence guarantee, but a reliable and reproducible local-search
+strategy designed around the structure of the recursive PEM criterion for the
+SISO polynomial models considered by the toolbox \citep{goodwin2003}.
 
 The first design choice is to start each nonlinear search from an auxiliary ARX
 estimate.  This gives a deterministic and inexpensive point in the parameter
@@ -273,7 +297,10 @@ necessarily reliable at the beginning of the search.  A Gauss--Newton step is
 attractive when the current iterate is already in a region where the local
 least-squares approximation is informative, but it can be fragile when the
 initial estimate is still far from such a region or when the sensitivity matrix
-is ill conditioned.  The first phase is therefore deliberately conservative: it
+is ill conditioned.  In preliminary testing, a direct damped Gauss--Newton or
+Levenberg--Marquardt iteration applied to the recursive PEM criterion was found
+unreliable under exactly these conditions, which motivated the two-phase strategy
+adopted here.  The first phase is therefore deliberately conservative: it
 follows a smoothed gradient direction and uses small adaptive changes in the step
 length.  This phase is intended to obtain a decrease of the criterion without
 first assuming that a local quadratic approximation is accurate.  Let
@@ -339,7 +366,7 @@ reliable only near a local minimizer, the implementation does not immediately
 take a full step.  It instead forms trial points
 \begin{equation}
   \theta_{\mathrm{trial}} = \theta_k - \beta_i p_k,
-  \qquad \beta_i \approx \frac{i+1}{1000},
+  \qquad \beta_i \approx \frac{i}{1000},
   \label{eq:incremental-newton}
 \end{equation}
 so that the effective Gauss--Newton step increases gradually over the
@@ -572,13 +599,20 @@ The numerical experiments are restricted to SISO OE examples.  This choice keeps
 the empirical analysis focused on plant-dynamics estimation and on the numerical
 behavior of the PEM optimizer, without adding the separate issue of estimating a
 colored-noise model.  OE is also a direct representative of the nonconvex
-polynomial PEM problems targeted by the dedicated optimization strategy.  The
-experiments evaluate two aspects of the implementation: the behavior of
-\texttt{pysib} relative to the SIPPY OE implementation used in this benchmark
-\citep{sippy}, and the effect of filtered continuation on a more difficult
-nonconvex OE benchmark.  The experiments therefore support empirical claims for
-the tested OE settings; ARMAX and BJ are included in the toolbox interface, but
-are not the focus of the numerical comparison in this short article.
+polynomial PEM problems targeted by the dedicated optimization strategy.  The two
+experiments are designed to probe that strategy: the first contrasts the
+dedicated PEM optimizer with a general-purpose solver on a benign problem, and
+the second isolates the effect of filtered continuation on a harder nonconvex
+problem.  Together they provide empirical evidence for the design choices of
+Section~\ref{sec:optimization-initialization} in the tested OE settings.  Broader
+comparisons of the filtered method against established MATLAB identification
+toolboxes are reported in earlier work \citep{eckhard2013input,eckhard2017cost};
+the present experiments instead isolate the optimizer and the continuation within
+a single reproducible toolbox.  The
+ARMAX and BJ structures use the same optimization strategy and interface;
+preliminary experiments not reported here suggested that it is effective for them
+as well, and further examples are straightforward to produce within the same
+framework but are omitted here for space.
 
 Both experiments use the same third-order OE plant.  The conceptual
 parametrization of Section~\ref{sec:polynomial-siso-models} gives
@@ -628,7 +662,13 @@ The first experiment compares \texttt{pysib} with the SIPPY OE implementation
 \citep{sippy} (the \texttt{sippy\_unipi} distribution, version 1.0.1, called
 through its \texttt{system\_identification} routine with the \texttt{OE} method
 and matching model orders), using noisy data generated from
-\eqref{eq:experiment-plant}.  The noise level
+\eqref{eq:experiment-plant}.  The two implementations take different routes to
+the same OE structure: SIPPY formulates the problem as a general nonlinear
+program and solves it with an interior-point optimizer, whereas \texttt{pysib}
+applies the dedicated PEM strategy of
+Section~\ref{sec:optimization-initialization} from an ARX initialization.  The
+comparison is therefore between a general-purpose solver and an optimizer built
+around the recursive PEM criterion.  The noise level
 \(\sigma_v=1\) defines a moderate-noise setting in which all methods are expected
 to identify the plant reasonably well, so the relevant quantities are the
 concentration of the estimated parameters and the distribution of the simulation
@@ -788,8 +828,8 @@ also reduces the mean relative simulation error.  The histogram illustrates that
 the improvement is not only an average effect: the filtered continuation
 substantially reduces the high-error tail observed for standard OE in this
 experiment.  This supports
-the role of filtered continuation as a cost-shaping and initialization mechanism
-for this OE problem.  The conclusion is deliberately empirical: the experiment
+the role of filtered continuation as a cost-shaping mechanism for this OE
+problem.  The conclusion is deliberately empirical: the experiment
 demonstrates improved behavior in the tested SISO OE setting, but it does not
 imply a global optimality guarantee for nonconvex PEM.
 
@@ -821,11 +861,10 @@ automated tests, this interface is intended to make the numerical results
 reproducible rather than dependent on undocumented implementation details.
 
 The numerical evidence focused on OE benchmarks.  In the noisy-data comparison,
-the \texttt{pysib} SM and OE estimates were more concentrated around the true
-parameters and achieved smaller mean simulation error than the SIPPY OE
-implementation used in the benchmark.  In the nonconvex OE experiment, filtered
-continuation improved the empirical success rate from 60\% for standard OE to
-100\% for filtered OE, supporting its role as a cost-shaping and initialization
+the \texttt{pysib} SM and OE estimates were tightly concentrated around the true
+parameters and attained a small mean simulation error.  In the nonconvex OE
+experiment, filtered continuation improved the empirical success rate from 60\%
+for standard OE to 100\% for filtered OE, supporting its role as a cost-shaping
 mechanism in that setting.  These results should be read as reproducible
 evidence for the tested SISO OE problems, not as a general performance claim for
 all polynomial identification settings.
