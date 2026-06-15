@@ -756,24 +756,17 @@ table and figure show the effect of these estimates on simulated output.
 
 \begin{figure}[htb]
   \begin{center}
-    \includegraphics[width=\columnwidth]{experiments/robustness_noisy_data_errors_hist.pdf}
-    \caption{Distribution of the relative simulation error for \texttt{pysib}
-    SM, \texttt{pysib} OE, and SIPPY OE in the noisy-data comparison.}
-    \label{fig:noisy-sippy-errors-hist}
-  \end{center}
-\end{figure}
-
-\begin{figure}[htb]
-  \begin{center}
-    \includegraphics[width=\columnwidth]{experiments/robustness_noisy_data_errors_box.pdf}
-    \caption{Boxplot of the relative simulation error for the same methods.}
-    \label{fig:noisy-sippy-errors-box}
+    \includegraphics[width=\columnwidth]{experiments/robustness_noisy_data_errors.pdf}
+    \caption{Relative simulation error for \texttt{pysib} SM, \texttt{pysib} OE,
+    and SIPPY OE in the noisy-data comparison: histogram (left) and boxplot
+    (right).}
+    \label{fig:noisy-sippy-errors}
   \end{center}
 \end{figure}
 
 Table~\ref{tab:noisy-parameter} reports the empirical means and standard
 deviations of the estimated OE parameters, while Table~\ref{tab:noisy-error}
-and Figs.~\ref{fig:noisy-sippy-errors-hist} and~\ref{fig:noisy-sippy-errors-box}
+and Fig.~\ref{fig:noisy-sippy-errors}
 summarize the simulation errors.  Because this is a benign, near-convex
 configuration, the agreement between the two \texttt{pysib} estimators is itself
 informative: the Stieglitz--McBride estimator and the ARX-initialized OE PEM
@@ -827,23 +820,15 @@ final model-evaluation criterion.
 
 \begin{figure}[htb]
   \begin{center}
-    \includegraphics[width=\columnwidth]{experiments/filtered_continuation_oe_errors_hist.pdf}
-    \caption{Distribution of the relative simulation error for standard OE and
-    filtered OE in the nonconvex benchmark.}
-    \label{fig:filtered-errors-hist}
-  \end{center}
-\end{figure}
-
-\begin{figure}[htb]
-  \begin{center}
-    \includegraphics[width=\columnwidth]{experiments/filtered_continuation_oe_errors_box.pdf}
-    \caption{Boxplot of the relative simulation error for the same methods.}
-    \label{fig:filtered-errors-box}
+    \includegraphics[width=\columnwidth]{experiments/filtered_continuation_oe_errors.pdf}
+    \caption{Relative simulation error for standard OE and filtered OE in the
+    nonconvex benchmark: histogram (left) and boxplot (right).}
+    \label{fig:filtered-errors}
   \end{center}
 \end{figure}
 
 The results in Table~\ref{tab:filtered-error} and
-Figs.~\ref{fig:filtered-errors-hist} and~\ref{fig:filtered-errors-box}
+Fig.~\ref{fig:filtered-errors}
 show a clear empirical difference between the two
 procedures in this benchmark.  Standard OE attains the success criterion in
 60\% of the runs, whereas the filtered continuation attains it in all runs and
