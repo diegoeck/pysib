@@ -30,7 +30,10 @@ filtered-continuation variants interpreted as cost-function shaping.  The
 software artifact is identified by a Zenodo DOI and is accompanied by the
 scripts used in the reported experiments.  The numerical study considers two OE
 benchmarks: a moderate-noise comparison with the SIPPY OE implementation and a
-nonconvex example comparing standard OE with filtered continuation.
+nonconvex example comparing standard OE with filtered continuation.  In the
+nonconvex benchmark, filtered continuation raises the empirical success rate
+from 60\% to 100\% relative to standard OE, illustrating its role as a
+cost-function-shaping mechanism.
 \end{abstract}
 
 \begin{keyword}
@@ -355,6 +358,15 @@ and the test is repeated a fixed number of times.  The overall procedure is
 therefore a safeguarded local search: it first seeks a reliable decrease of the
 criterion and then uses sensitivity information to refine the estimate.
 
+Each phase runs for a fixed iteration budget rather than a gradient-norm
+stopping test.  The smoothed-gradient phase performs at most \(10^{4}\) step
+updates, organized as one hundred outer iterations of one hundred inner
+step-length adaptations, and exits early when the adaptive step length collapses
+below \(10^{-7}\).  The Gauss--Newton phase then runs a fixed budget of one
+thousand iterations, over which the incremental factor \(\beta_i\) grows from
+near zero toward a full step.  Fixing these budgets keeps the procedure
+deterministic and reproducible for a given data record.
+
 The computationally intensive part of this process is the repeated evaluation
 of prediction errors, sensitivities, and gradients.  These quantities are
 computed by sequential filtering recursions: each new sample depends on previous
@@ -464,7 +476,7 @@ simulation, or error computation.
     \texttt{oe} & OE & Nonlinear PEM \\
     \texttt{armax} & ARMAX & Nonlinear PEM \\
     \texttt{bj} & Box--Jenkins & Nonlinear PEM \\
-    \texttt{*\_filtered} & Filtered continuation & PEM initialization \\
+    \texttt{*\_filtered} & Filtered continuation & Cost shaping \\
     \texttt{predict/simulate} & Model evaluation & Common evaluation \\
     \bottomrule
   \end{tabular}
@@ -519,16 +531,11 @@ measure different aspects of the identified model.  This evaluation layer is
 also the mechanism used to compute the simulation-error metric in the numerical
 experiments of Section~\ref{sec:numerical-experiments}.
 
-Formally, given a model \(m\) returned by any estimator, the one-step-ahead
-prediction computed by \texttt{predict} is
-\begin{equation}
-  \hat y_p(t) =
-  H^{-1}(q^{-1})G(q^{-1})u(t) + \bigl[1-H^{-1}(q^{-1})\bigr]y(t),
-  \label{eq:predict-routine}
-\end{equation}
-where \(G\) and \(H\) are evaluated from the polynomials in \(m\) and the input
-delay is included in \(B\) according to the storage convention.  The noise-free
-simulation computed by \texttt{simulate} uses only the plant model,
+Formally, given a model \(m\) returned by any estimator, the \texttt{predict}
+routine evaluates the one-step-ahead predictor \eqref{eq:predictor} using the
+polynomials in \(m\), with \(G\) and \(H\) formed from those polynomials and the
+input delay included in \(B\) according to the storage convention.  The
+noise-free simulation computed by \texttt{simulate} uses only the plant model,
 \begin{equation}
   \hat y_s(t) = G(q^{-1})u(t).
   \label{eq:simulate-routine}
@@ -617,12 +624,17 @@ OE benchmarks considered here.  A run is counted as successful when
 \subsection{Noisy-Data Comparison with SIPPY}
 \label{subsec:noisy-data-sippy}
 
-The first experiment compares \texttt{pysib} with the SIPPY OE implementation,
-using noisy data generated from \eqref{eq:experiment-plant}.  The noise level
+The first experiment compares \texttt{pysib} with the SIPPY OE implementation
+\citep{sippy} (the \texttt{sippy\_unipi} distribution, version 1.0.1, called
+through its \texttt{system\_identification} routine with the \texttt{OE} method
+and matching model orders), using noisy data generated from
+\eqref{eq:experiment-plant}.  The noise level
 \(\sigma_v=1\) defines a moderate-noise setting in which all methods are expected
 to identify the plant reasonably well, so the relevant quantities are the
 concentration of the estimated parameters and the distribution of the simulation
-error.  The Monte Carlo study uses \(M=100\) independent data records of length
+error.  In other words, this benchmark does not test whether the plant is
+identifiable, but how tightly the underlying optimization converges to the
+data-generating parameters in a benign, near-convex case.  The Monte Carlo study uses \(M=100\) independent data records of length
 \(N=1000\).  Additive white output noise is added to the noise-free output.  The
 input is the deterministic multisine
 \begin{equation}
@@ -699,16 +711,21 @@ table and figure show the effect of these estimates on simulated output.
 Table~\ref{tab:noisy-parameter} reports the empirical means and standard
 deviations of the estimated OE parameters, while Table~\ref{tab:noisy-error}
 and Figs.~\ref{fig:noisy-sippy-errors-hist} and~\ref{fig:noisy-sippy-errors-box}
-summarize the simulation errors.  In this
-benchmark, the two \texttt{pysib} estimates are more concentrated around the
-true coefficients than the SIPPY OE estimates obtained in this configuration.
-The histogram shows the same effect
-from the model-output perspective: the \texttt{pysib} error distributions are
-tighter and closer to zero.  The mean simulation error is also smaller for
-\texttt{pysib} SM and OE.  All methods satisfy the success criterion in all
-Monte Carlo runs, so the main distinction in this moderate-noise case is the
-concentration of the estimates and the distribution of \(E_{\mathrm{sim}}\), not
-the binary success rate.
+summarize the simulation errors.  Because this is a benign, near-convex
+configuration, the agreement between the two \texttt{pysib} estimators is itself
+informative: the Stieglitz--McBride estimator and the ARX-initialized OE PEM
+estimator coincide to the reported precision and sit essentially at the
+data-generating parameters, indicating that two independent search paths reach
+the same minimizer.  The SIPPY OE estimates obtained in this configuration, by
+contrast, exhibit a visible bias—for example, a mean \(b_1\) of \(1.044\) against
+the true value \(1.0\)—together with a standard deviation roughly an order of
+magnitude larger and a mean simulation error about nine times larger.  The
+histogram and boxplot show the same effect from the model-output perspective:
+the \texttt{pysib} error distributions are tighter and closer to zero.  All
+methods satisfy the success criterion in all Monte Carlo runs, so the
+distinction in this moderate-noise case is not whether the plant can be
+identified, but how tightly the underlying optimization converges to the true
+minimizer.
 
 \subsection{Filtered Continuation on a Nonconvex OE Problem}
 \label{subsec:filtered-experiment}
@@ -830,8 +847,16 @@ strategy described in Section~\ref{sec:optimization-initialization}—is also
 needed to complement the OE benchmarks reported here.  Further work on filtered
 continuation could explore adaptive filter schedules or filter families beyond
 first-order low-pass and Butterworth designs.  Finally, broader comparisons with
-other Python identification packages and with the established MATLAB toolbox
-would help position \texttt{pysib} in the wider ecosystem.
+other Python identification packages and with the MATLAB System Identification
+Toolbox would help position \texttt{pysib} in the wider ecosystem.
+
+\section*{Declaration of generative AI and AI-assisted technologies in the manuscript preparation process}
+
+During the preparation of this work the author used Claude (Anthropic), GPT
+(OpenAI), and DeepSeek in order to improve the clarity and language of the
+manuscript and to assist with software development.  After using these
+tools/services, the author reviewed and edited the content as needed and takes
+full responsibility for the content of the published article.
 
 \bibliographystyle{ifacconf}
 \bibliography{references}
