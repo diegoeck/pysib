@@ -280,6 +280,22 @@ a new global-convergence guarantee, but a reliable and reproducible local-search
 strategy designed around the structure of the recursive PEM criterion for the
 SISO polynomial models considered by the toolbox \citep{goodwin2003}.
 
+A single principle guides these choices.  On the nonconvex PEM criteria of
+interest, aggressive optimizers tend to fail in two ways: they settle into poor
+local minima, or they step outside the stability region---most often by driving
+the roots of \(F\) outside the unit circle---where the predictor diverges and the
+cost becomes non-finite, the latter being the more frequent failure in practice.
+The strategy adopted here deliberately trades iteration speed for reliability:
+many small, smoothed steps and a gradually increasing Gauss--Newton step keep the
+iterates from overshooting into either failure.  Stability is not tested
+directly; an unstable trial point simply raises the cost or makes it non-finite,
+so a single cost-based safeguard---rejecting and backtracking any trial point
+that does not decrease the cost---handles both failure modes at once.  The price
+is a large iteration count, but the inner recursions are implemented in C, so the
+method stays fast in wall-clock time.  This ``slow is better'' principle gives the
+toolbox its name: SIB (Slow Is Better), of which \texttt{pysib} is the Python
+implementation.
+
 The first design choice is to start each nonlinear search from an auxiliary ARX
 estimate.  This gives a deterministic and inexpensive point in the parameter
 space before the recursive PEM criterion is optimized.  Although the ARX model
@@ -393,6 +409,13 @@ below \(10^{-7}\).  The Gauss--Newton phase then runs a fixed budget of one
 thousand iterations, over which the incremental factor \(\beta_i\) grows from
 near zero toward a full step.  Fixing these budgets keeps the procedure
 deterministic and reproducible for a given data record.
+
+The same fixed configuration is used unchanged for every structure and every
+experiment reported here: the smoothing weight, the step-length factors, the
+Gauss--Newton ramp, and the iteration budgets are not tuned per problem.  This is
+a deliberate design choice---the strategy favours robustness and determinism over
+per-problem tuning---and, because the experiment scripts and the random seed are
+provided, the absence of tuning is auditable rather than merely asserted.
 
 The computationally intensive part of this process is the repeated evaluation
 of prediction errors, sensitivities, and gradients.  These quantities are
