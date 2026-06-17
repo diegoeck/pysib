@@ -1,5 +1,5 @@
 %===============================================================================
-% pysib: An Open-Source Python Toolbox for SISO Polynomial System Identification
+% pysib: An Open-Source Python Toolbox for Linear System Identification
 % SYSID 2027 / IFAC Journal of Systems and Control journal option draft
 %===============================================================================
 \documentclass{ifacconf}
@@ -14,7 +14,7 @@
 \begin{document}
 \begin{frontmatter}
 
-\title{pysib: An Open-Source Python Toolbox for SISO Polynomial System Identification}
+\title{pysib: An Open-Source Python Toolbox for Linear System Identification}
 
 \author[ufrgs]{Diego Eckhard}
 \address[ufrgs]{Universidade Federal do Rio Grande do Sul, Porto Alegre, Brazil
@@ -27,9 +27,10 @@ ARMAX, and BJ the finite-sample criterion is nonconvex: the estimate a user
 actually obtains is set by the initialization and the optimization procedure,
 not only by the asymptotic theory.  This article documents the dedicated
 optimization strategy behind \texttt{pysib}, an open-source Python toolbox for
-SISO polynomial system identification---an ARX-based initialization, a
-smoothed-gradient phase, an incremental Gauss--Newton refinement, and filtered
-continuation interpreted as cost-function shaping.  This strategy produced the
+SISO polynomial system identification.  The strategy consists of an ARX-based
+initialization, a smoothed-gradient phase, an incremental Gauss--Newton
+refinement, and filtered continuation interpreted as cost-function shaping.  This
+strategy produced the
 filtered-continuation results reported by the author in earlier work but had not
 previously been described or released; it is given here in full and as open
 Python software, with a common five-polynomial representation, shared prediction
@@ -97,8 +98,8 @@ ARX, ARMAX, OE, and BJ structures, but casts the polynomial criteria as a genera
 nonlinear program solved with an off-the-shelf optimizer \citep{sippy}.  These
 tools are complementary rather than directly comparable; \texttt{pysib} occupies
 the specific niche of SISO polynomial PEM and pairs the polynomial convention
-with an optimization procedure designed around the structure of the recursive
-PEM criterion, which is the part of the toolbox examined in most detail below.
+with an optimization procedure designed around the structure of the PEM
+criterion, which is the part of the toolbox examined in most detail below.
 
 The contribution of this article is threefold.  First, it gives the first
 explicit description of the dedicated numerical strategy used by \texttt{pysib}
@@ -140,8 +141,8 @@ is denoted by \(y_0(t)\), and the measured output is written as the sum of this
 component and an additive disturbance:
 \begin{align}
   y_0(t) &= G_0(q^{-1})u(t), \\
-  y(t)   &= y_0(t) + v(t), \\
-  v(t)   &= H_0(q^{-1})e(t).
+  v(t)   &= H_0(q^{-1})e(t), \\
+  y(t)   &= y_0(t) + v(t).
   \label{eq:true-system}
 \end{align}
 Here \(q^{-1}\) is the backward-shift operator, \(G_0\) is the true plant,
@@ -275,30 +276,33 @@ criterion is defined by \eqref{eq:pem-criterion}, but for OE, ARMAX, and BJ the
 finite-sample optimization problem is nonconvex and the result may depend on
 the initial point and on the path followed by the optimizer.  A software
 implementation must therefore make concrete choices about initialization,
-descent safeguards, curvature information, and failure handling.  The aim is not
-a new global-convergence guarantee, but a reliable and reproducible local-search
-strategy designed around the structure of the recursive PEM criterion for the
-SISO polynomial models considered by the toolbox \citep{goodwin2003}.
+descent safeguards, curvature information, and failure handling.  Local
+convergence of maximum-likelihood and prediction-error iterations for
+ARMAX-type models is known to depend on problem-specific conditions
+\citep{goodwin2003}; the aim here is therefore not a new global-convergence
+guarantee, but a reliable and reproducible local-search strategy designed around
+the structure of the PEM criterion for the SISO polynomial models considered by
+the toolbox.
 
 A single principle guides these choices.  On the nonconvex PEM criteria of
 interest, aggressive optimizers tend to fail in two ways: they settle into poor
-local minima, or they step outside the stability region---most often by driving
-the roots of \(F\) outside the unit circle---where the predictor diverges and the
+local minima, or they step outside the stability region, most often by driving
+the roots of \(F\) outside the unit circle, where the predictor diverges and the
 cost becomes non-finite, the latter being the more frequent failure in practice.
 The strategy adopted here deliberately trades iteration speed for reliability:
 many small, smoothed steps and a gradually increasing Gauss--Newton step keep the
 iterates from overshooting into either failure.  Stability is not tested
 directly; an unstable trial point simply raises the cost or makes it non-finite,
-so a single cost-based safeguard---rejecting and backtracking any trial point
-that does not decrease the cost---handles both failure modes at once.  The price
+so a single cost-based safeguard handles both failure modes at once by rejecting
+and backtracking any trial point that does not decrease the cost.  The price
 is a large iteration count, but the inner recursions are implemented in C, so the
 method stays fast in wall-clock time.  This ``slow is better'' principle gives the
-toolbox its name: SIB (Slow Is Better), of which \texttt{pysib} is the Python
-implementation.
+toolbox part of its name: SIB denotes both Slow Is Better and System
+Identification Toolbox, and \texttt{pysib} is its Python implementation.
 
 The first design choice is to start each nonlinear search from an auxiliary ARX
 estimate.  This gives a deterministic and inexpensive point in the parameter
-space before the recursive PEM criterion is optimized.  Although the ARX model
+space before the nonlinear PEM criterion is optimized.  Although the ARX model
 does not generally have the same disturbance structure as OE, ARMAX, or BJ, it
 provides a direct polynomial approximation with numerator and denominator
 dimensions compatible with the requested structure.  The resulting coefficients
@@ -314,7 +318,7 @@ attractive when the current iterate is already in a region where the local
 least-squares approximation is informative, but it can be fragile when the
 initial estimate is still far from such a region or when the sensitivity matrix
 is ill conditioned.  In preliminary testing, a direct damped Gauss--Newton or
-Levenberg--Marquardt iteration applied to the recursive PEM criterion was found
+Levenberg--Marquardt iteration applied to the nonlinear PEM criterion was found
 unreliable under exactly these conditions, which motivated the two-phase strategy
 adopted here.  The first phase is therefore deliberately conservative: it
 follows a smoothed gradient direction and uses small adaptive changes in the step
@@ -352,7 +356,10 @@ and the step length is increased:
 \end{equation}
 This rule is a numerical safeguard.  It
 should be read as a practical descent heuristic, not as a global-convergence
-claim for the nonconvex PEM criterion.
+claim for the nonconvex PEM criterion.  The notation
+\(\theta_{\mathrm{trial}}\) is used because the point is only provisional: if it
+is accepted, it becomes the next iterate \(\theta_{k+1}\); otherwise
+\(\theta_k\) is retained and only the step length is reduced.
 
 After this initial decrease phase, the optimizer switches to a local refinement
 based on a Gauss--Newton approximation.  At this stage, the algorithm uses the
@@ -382,7 +389,7 @@ reliable only near a local minimizer, the implementation does not immediately
 take a full step.  It instead forms trial points
 \begin{equation}
   \theta_{\mathrm{trial}} = \theta_k - \beta_i p_k,
-  \qquad \beta_i \approx \frac{i}{1000},
+  \qquad \beta_i = \frac{i}{1000},\quad i=1,\ldots,1000,
   \label{eq:incremental-newton}
 \end{equation}
 so that the effective Gauss--Newton step increases gradually over the
@@ -397,7 +404,9 @@ value, it is moved halfway back to the current iterate,
   \leftarrow \frac{\theta_{\mathrm{trial}}+\theta_k}{2},
   \label{eq:bisection-backtracking}
 \end{equation}
-and the test is repeated a fixed number of times.  The overall procedure is
+and the test is repeated a fixed number of times.  Once a trial point satisfies
+the cost-decrease test, it is accepted as the next iterate.  The overall
+procedure is
 therefore a safeguarded local search: it first seeks a reliable decrease of the
 criterion and then uses sensitivity information to refine the estimate.
 
@@ -412,10 +421,10 @@ deterministic and reproducible for a given data record.
 
 The same fixed configuration is used unchanged for every structure and every
 experiment reported here: the smoothing weight, the step-length factors, the
-Gauss--Newton ramp, and the iteration budgets are not tuned per problem.  This is
-a deliberate design choice---the strategy favours robustness and determinism over
-per-problem tuning---and, because the experiment scripts and the random seed are
-provided, the absence of tuning is auditable rather than merely asserted.
+Gauss--Newton ramp, and the iteration budgets are not tuned per problem.  This
+deliberate design choice favours robustness and determinism over per-problem
+tuning.  Because the experiment scripts and the random seed are provided, the
+absence of tuning is auditable rather than merely asserted.
 
 The computationally intensive part of this process is the repeated evaluation
 of prediction errors, sensitivities, and gradients.  These quantities are
@@ -600,7 +609,7 @@ Thus, \texttt{predict} uses the full model (plant and disturbance), while
   \footnotesize
   \begin{tabular}{lp{0.55\columnwidth}}
     \toprule
-    Version & \texttt{pysib} v0.2.1~\citep{pysib2026} \\
+    Version & \texttt{pysib} v0.2.2~\citep{pysib2026} \\
     License & MIT \\
     Install & \texttt{pip install pysib} \\
     Documentation & \url{https://pysib.net/} \\
@@ -633,9 +642,8 @@ toolboxes are reported in earlier work \citep{eckhard2013input,eckhard2017cost};
 the present experiments instead isolate the optimizer and the continuation within
 a single reproducible toolbox.  The
 ARMAX and BJ structures use the same optimization strategy and interface;
-preliminary experiments not reported here suggested that it is effective for them
-as well, and further examples are straightforward to produce within the same
-framework but are omitted here for space.
+they have been exercised during package development, but a systematic Monte
+Carlo evaluation comparable to the OE experiments is left for future work.
 
 Both experiments use the same third-order OE plant.  The conceptual
 parametrization of Section~\ref{sec:polynomial-siso-models} gives
@@ -676,22 +684,23 @@ Here \(y_0\) is the noise-free plant output and \(\hat y\) is the simulated
 output of the estimated model.  This metric evaluates the estimated plant
 dynamics rather than the one-step-ahead predictor, which is appropriate for the
 OE benchmarks considered here.  A run is counted as successful when
-\(E_{\mathrm{sim}}<5\%\).
+\(E_{\mathrm{sim}}<5\%\).  This threshold is used only as an operational marker
+of a low simulation error, not as a theoretical consistency criterion.
 
 \subsection{Noisy-Data Comparison with SIPPY}
 \label{subsec:noisy-data-sippy}
 
 The first experiment compares \texttt{pysib} with the SIPPY OE implementation
 \citep{sippy} (the \texttt{sippy\_unipi} distribution, version 1.0.1, called
-through its \texttt{system\_identification} routine with the \texttt{OE} method
-and matching model orders), using noisy data generated from
+through its OE system-identification routine with matching model orders), using
+noisy data generated from
 \eqref{eq:experiment-plant}.  The two implementations take different routes to
 the same OE structure: SIPPY formulates the problem as a general nonlinear
-program and solves it with an interior-point optimizer, whereas \texttt{pysib}
+program solved with an off-the-shelf nonlinear optimizer, whereas \texttt{pysib}
 applies the dedicated PEM strategy of
 Section~\ref{sec:optimization-initialization} from an ARX initialization.  The
 comparison is therefore between a general-purpose solver and an optimizer built
-around the recursive PEM criterion.  The noise level
+around the PEM criterion.  The noise level
 \(\sigma_v=1\) defines a moderate-noise setting in which all methods are expected
 to identify the plant reasonably well, so the relevant quantities are the
 concentration of the estimated parameters and the distribution of the simulation
@@ -773,15 +782,15 @@ informative: the Stieglitz--McBride estimator and the ARX-initialized OE PEM
 estimator coincide to the reported precision and sit essentially at the
 data-generating parameters, indicating that two independent search paths reach
 the same minimizer.  The SIPPY OE estimates obtained in this configuration, by
-contrast, exhibit a visible bias—for example, a mean \(b_1\) of \(1.044\) against
-the true value \(1.0\)—together with a standard deviation roughly an order of
-magnitude larger and a mean simulation error about nine times larger.  The
+contrast, exhibit a visible bias, for example, a mean \(b_1\) of \(1.044\)
+against the true value \(1.0\), together with a standard deviation roughly an
+order of magnitude larger and a mean simulation error about nine times larger.  The
 histogram and boxplot show the same effect from the model-output perspective:
 the \texttt{pysib} error distributions are tighter and closer to zero.  All
 methods satisfy the success criterion in all Monte Carlo runs, so the
 distinction in this moderate-noise case is not whether the plant can be
-identified, but how tightly the underlying optimization converges to the true
-minimizer.
+identified, but how tightly the underlying optimization returns estimates near
+the known data-generating parameters.
 
 \subsection{Filtered Continuation on a Nonconvex OE Problem}
 \label{subsec:filtered-experiment}
@@ -886,16 +895,16 @@ for nonconvex PEM criteria and does not provide a global-optimality guarantee.
 \section*{Future Work}
 
 Several directions follow naturally from the current scope.  The most immediate
-extension is to MIMO polynomial input--output models, where the five-polynomial
-convention and the common prediction and simulation interface could be
-generalized to multi-variable structures.  A systematic experimental evaluation
-of the ARMAX and BJ routines—already implemented with the same optimization
-strategy described in Section~\ref{sec:optimization-initialization}—is also
-needed to complement the OE benchmarks reported here.  Further work on filtered
-continuation could explore adaptive filter schedules or filter families beyond
-first-order low-pass and Butterworth designs.  Finally, broader comparisons with
-other Python identification packages and with the MATLAB System Identification
-Toolbox would help position \texttt{pysib} in the wider ecosystem.
+one is a systematic experimental evaluation of the ARMAX and BJ routines, already
+implemented with the same optimization strategy described in
+Section~\ref{sec:optimization-initialization}.  A longer-term extension is to
+MIMO polynomial input--output models, where the five-polynomial convention and
+the common prediction and simulation interface could be generalized to
+multi-variable structures.  Further work on filtered continuation could explore
+adaptive filter schedules or filter families beyond first-order low-pass and
+Butterworth designs.  Finally, broader comparisons with other Python
+identification packages and with the MATLAB System Identification Toolbox would
+help position \texttt{pysib} in the wider ecosystem.
 
 \section*{Declaration of generative AI and AI-assisted technologies in the manuscript preparation process}
 

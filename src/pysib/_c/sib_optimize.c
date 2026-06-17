@@ -180,7 +180,7 @@ void sib_newton(double* tetafim)
         
         for (k = 0; k < dteta; k++)
         {
-            tetatemp[k] = tetafim[k] - gra[k]*(i+1)/1000;
+            tetatemp[k] = tetafim[k] - gra[k]*((double)i)/1000.0;
         }
     
         //memcpy(tetafim,tetatemp,sizeof(double) *dteta);
@@ -240,4 +240,3 @@ void sib_newton(double* tetafim)
 
 }
  
-

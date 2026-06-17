@@ -2,9 +2,28 @@
 
 ## Unreleased
 
+No unreleased changes.
+
+## v0.2.2 — 2026-06-17
+
+Bugfix release for the nonlinear optimizer.
+
+### Package
+
+- Corrected the incremental Gauss--Newton step ramp used by the shared C
+  optimizer.  The final trial factor is now exactly `1.0` instead of `1.001`.
+
 ### Documentation
 
 - Added Zenodo DOI and citation metadata.
+- Updated release metadata and citation information for version `0.2.2`.
+- Updated the SYSID 2027 article draft to describe the corrected
+  Gauss--Newton ramp.
+
+### Links
+
+- PyPI: <https://pypi.org/project/pysib/0.2.2/>
+- GitHub release: <https://github.com/diegoeck/pysib/releases/tag/v0.2.2>
 
 ## v0.2.1 — 2026-06-06
 

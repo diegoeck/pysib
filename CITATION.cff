@@ -1,9 +1,9 @@
 cff-version: 1.2.0
 message: "If you use pysib, please cite it using the metadata from this file."
 title: "pysib: System Identification Toolbox"
-version: 0.2.1
+version: 0.2.2
 doi: 10.5281/zenodo.20572074
-date-released: 2026-06-06
+date-released: 2026-06-17
 authors:
   - family-names: Eckhard
     given-names: Diego
