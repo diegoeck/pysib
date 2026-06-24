@@ -5,7 +5,7 @@
 - `src/pysib/_c/` contains C extensions compiled via `setuptools.Extension` — one `.so` per algorithm (OE, ARMAX, BJ).
 - `tests/test_basic.py` covers all public functions with pytest.
 - ACM TOMS Algorithm article draft is in `docs/paper-toms/` using `acmart` and BibTeX.
-- IFAC conference paper (short version) is in `docs/paper-sysid/` using `ifacconf` and BibTeX.
+- SYSID 2027 journal-option article draft is in `docs/paper-sysid-2027/` using `ifacconf` and BibTeX.
 - Article publication support files are in `docs/paper-toms/publication/`.
 - User manual in LaTeX is in `docs/manual/`; article and manual go to `docs/` (not PyPI).
 
@@ -19,7 +19,7 @@
 - Quick smoke: `python3 -c "import pysib; import numpy as np; u=np.sin(np.arange(80)/5); y=u+0.01*np.random.randn(80); pysib.oe(u,y,1,1,0); print('OK')"`
 - Build site: GitHub Actions installs MkDocs and runs `python -m mkdocs build --strict`.
 - Build article: `make` from `docs/paper-toms/`.
-- Build IFAC paper: `make` from `docs/paper-sysid/`.
+- Build SYSID 2027 paper: `make` from `docs/paper-sysid-2027/`.
 - Build manual: `make` from `docs/manual/`.
 
 ## Documentation Strategy

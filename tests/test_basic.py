@@ -2,6 +2,7 @@
 import numpy as np
 from scipy.signal import lfilter
 import pysib
+import pysib.filtered as filtered_module
 
 
 def _sin_input(N):
@@ -113,6 +114,48 @@ def test_filtered_basic():
 
     theta, m = pysib.armax_filtered(u, y, na=1, nb=1, nc=0, nz=1)
     assert len(theta) == 2
+
+
+def test_filtered_variants_use_common_filter_schedule(monkeypatch):
+    """OE, ARMAX, and BJ filtered variants use the same filtered data sequence."""
+    records = {"oe": [], "armax": [], "bj": []}
+    active = {"name": None}
+
+    def fake_arx(u, y, na, nb, nz):
+        records[active["name"]].append(("arx", u.copy(), y.copy()))
+        return np.zeros(na + nb), {}
+
+    def fake_identify(u, y, theta, *orders):
+        records[active["name"]].append(("identify", u.copy(), y.copy()))
+        return theta
+
+    monkeypatch.setattr(filtered_module, "arx", fake_arx)
+    monkeypatch.setattr(filtered_module, "_oe_identify", fake_identify)
+    monkeypatch.setattr(filtered_module, "_armax_identify", fake_identify)
+    monkeypatch.setattr(filtered_module, "_bj_identify", fake_identify)
+
+    u = _sin_input(80)
+    y = lfilter([0, 1], [1, -0.7], u)
+
+    active["name"] = "oe"
+    pysib.oe_filtered(u, y, nb=1, nf=1, nz=1)
+    active["name"] = "armax"
+    pysib.armax_filtered(u, y, na=1, nb=1, nc=0, nz=1)
+    active["name"] = "bj"
+    pysib.bj_filtered(u, y, nb=1, nc=0, nd=0, nf=1, nz=1)
+
+    assert len(records["oe"]) == 11
+    assert len(records["armax"]) == 11
+    assert len(records["bj"]) == 11
+
+    for oe_call, armax_call, bj_call in zip(
+        records["oe"], records["armax"], records["bj"]
+    ):
+        assert oe_call[0] == armax_call[0] == bj_call[0]
+        np.testing.assert_allclose(oe_call[1], armax_call[1])
+        np.testing.assert_allclose(oe_call[1], bj_call[1])
+        np.testing.assert_allclose(oe_call[2], armax_call[2])
+        np.testing.assert_allclose(oe_call[2], bj_call[2])
 
 
 def test_correlation_exact():

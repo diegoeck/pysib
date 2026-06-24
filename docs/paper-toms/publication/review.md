@@ -20,7 +20,7 @@ The manuscript describes `pysib`, an open-source Python package for parameter id
 
 4. **Section 3.1, Lines 519–525.** IV and correlation receive only five lines while ARX and SM receive full subsections. Expand or clarify that they follow the standard constructions already presented in Section 2.
 
-5. **Section 3.3.** Filter schedules for two different filter families (IIR for OE, Butterworth for ARMAX/BJ) are described, but only OE is tested numerically. Clarify that the experiment focuses on OE because it is the simplest structure for which the cost-function shaping literature is developed.
+5. **Section 3.3.** The shared filtered-continuation schedule is described for OE, ARMAX, and BJ, but only OE is tested numerically. Clarify that the experiment focuses on OE because it is the simplest structure for which the cost-function shaping literature is developed.
 
 6. **Line 793.** The success threshold of 5% is stated without justification. Motivate the choice.
 

@@ -3,7 +3,7 @@ Allow: /
 
 Disallow: /paper-toms/experiments/
 Disallow: /paper-toms/publication/
-Disallow: /paper-sysid/experiments/
-Disallow: /paper-sysid/ifacconf_latex/
+Disallow: /paper-sysid-2027/experiments/
+Disallow: /paper-sysid-2027/ifacconf_latex/
 
 Sitemap: https://pysib.net/sitemap.xml

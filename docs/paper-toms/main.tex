@@ -687,19 +687,14 @@ continuation path begins from a strongly shaped criterion and ends at the
 original PEM problem.  The total computational cost is approximately ten
 times that of the corresponding unfiltered estimator.
 
-\paragraph{Filter schedules.}
-For the OE structure, each stage uses a first-order IIR filter
+\paragraph{Filter schedule.}
+For the OE, ARMAX, and Box--Jenkins structures, each stage uses a first-order IIR filter
 $(1-a_i)/(1 - a_i q^{-1})$ with unit DC gain, whose pole is
 $a_i = 0.05^{1/\tau_i}$ with $\tau_i = 4(10 - i)$ for stages
 $i = 1,\ldots,9$.  The pole decreases from $a_1 \approx 0.920$
 (aggressive low-pass, stage~1) to $a_9 \approx 0.473$ (mild
 low-pass, stage~9), progressively restoring high-frequency content.
-
-For the ARMAX and Box--Jenkins structures, each stage uses a
-first-order Butterworth filter with normalized cutoff
-$\omega_i = 0.1\,i$ (as a fraction of the Nyquist frequency),
-$i = 1,\ldots,9$.  Stage~1 passes only the lowest $10\,\%$ of the
-spectrum; stage~9 passes $90\,\%$.  In both schedules the final stage is the original unfiltered
+The final stage is the original unfiltered
 estimator applied to the same PEM criterion; the only difference
 between the standard and filtered methods is the initial
 condition---the standard method starts from an ARX estimate,

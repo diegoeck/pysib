@@ -36,7 +36,7 @@ nav:
   - Publications:
       - User Manual: manual/main.pdf
       - ACM TOMS Paper: paper-toms/main.pdf
-      - IFAC SYSID Paper: paper-sysid/main.pdf
+      - SYSID 2027 Paper: paper-sysid-2027/main.pdf
 
 markdown_extensions:
   - pymdownx.highlight:

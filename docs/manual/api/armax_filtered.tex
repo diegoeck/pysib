@@ -19,13 +19,17 @@ at each stage are the same as for \texttt{armax}:
 
 Before the final unfiltered ARMAX step, 9 auxiliary ARMAX problems
 are solved on filtered versions of the data.  At stage $i$, both
-\texttt{u} and \texttt{y} are passed through a first-order low-pass
-Butterworth filter with cutoff frequency $0.1 i\,\pi$\,rad/sample
-($i = 1,\ldots,9$), and the ARMAX criterion is minimized on the
-filtered data.  The cutoff increases from $0.1\pi$ to $0.9\pi$,
-progressively widening the passband and reshaping the cost function
-to reduce the attraction of undesirable local minima before the
-estimate is refined on the original data.
+\texttt{u} and \texttt{y} are passed through the same first-order
+low-pass filter sequence used by \texttt{oe\_filtered}:
+\[
+  a_i = 0.05^{1/\tau_i}, \qquad
+  \tau_i \in \{36,32,28,24,20,16,12,8,4\}.
+\]
+The ARMAX criterion is
+minimized on the filtered data, progressively widening the passband
+and reshaping the cost function to reduce the attraction of
+undesirable local minima before the estimate is refined on the
+original data.
 
 \subsubsection*{Arguments}
 \begin{center}

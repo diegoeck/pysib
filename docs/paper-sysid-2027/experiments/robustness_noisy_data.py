@@ -28,9 +28,9 @@ T_oe = np.full((NB + NF, M), np.nan)
 T_sippy = np.full((NB + NF, M), np.nan)
 
 t = np.arange(N)
-u = (np.sin(2 * np.pi * t / 17)
-     + 0.7 * np.sin(2 * np.pi * t / 43)
-     + 0.4 * np.sin(2 * np.pi * t / 97))
+u = (np.sin(2 * np.pi * t / 18)
+     + np.sin(2 * np.pi * t / 28)
+     + np.sin(2 * np.pi * t / 61))
 y0 = lfilter(B_SIM, F_SIM, u)
 y_run0 = None
 

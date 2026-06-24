@@ -1,10 +1,21 @@
 import numpy as np
-from scipy.signal import lfilter, butter
+from scipy.signal import lfilter
 
 from .arx import arx
 from ._c._pysib_oe_core import identify as _oe_identify
 from ._c._pysib_armax_core import identify as _armax_identify
 from ._c._pysib_bj_core import identify as _bj_identify
+
+
+def _filtered_continuation_poles():
+    tau = np.array([0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]) * 40
+    return np.exp(np.log(0.05) / tau)
+
+
+def _lowpass_filter(u, y, pole):
+    b = [1 - pole]
+    a = [1, -pole]
+    return lfilter(b, a, u), lfilter(b, a, y)
 
 
 def oe_filtered(u, y, nb, nf, nz):
@@ -36,18 +47,15 @@ def oe_filtered(u, y, nb, nf, nz):
     u = np.asarray(u, dtype=float).ravel()
     y = np.asarray(y, dtype=float).ravel()
 
-    FF = np.array([0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]) * 40
-    FF = np.exp(np.log(0.05) / FF)
+    poles = _filtered_continuation_poles()
 
     # Initial filter and ARX
-    uf = lfilter([1 - FF[0]], [1, -FF[0]], u)
-    yf = lfilter([1 - FF[0]], [1, -FF[0]], y)
+    uf, yf = _lowpass_filter(u, y, poles[0])
     theta0, _ = arx(uf, yf, nf, nb, nz)
     theta1 = np.concatenate((theta0[nf:], theta0[:nf]))
     
-    for i in range(len(FF)):
-        uf = lfilter([1 - FF[i]], [1, -FF[i]], u)
-        yf = lfilter([1 - FF[i]], [1, -FF[i]], y)
+    for pole in poles:
+        uf, yf = _lowpass_filter(u, y, pole)
         theta2 = _oe_identify(uf, yf, theta1, nb, nf, nz)
         theta1 = theta2
 
@@ -94,15 +102,14 @@ def armax_filtered(u, y, na, nb, nc, nz):
     u = np.asarray(u, dtype=float).ravel()
     y = np.asarray(y, dtype=float).ravel()
 
-    FF = np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9])
+    poles = _filtered_continuation_poles()
 
-    theta0, _ = arx(u, y, na, nb, nz)
+    uf, yf = _lowpass_filter(u, y, poles[0])
+    theta0, _ = arx(uf, yf, na, nb, nz)
     theta1 = np.concatenate((theta0, np.zeros(nc)))
 
-    for i in range(len(FF)):
-        b, a = butter(1, FF[i])
-        uf = lfilter(b, a, u)
-        yf = lfilter(b, a, y)
+    for pole in poles:
+        uf, yf = _lowpass_filter(u, y, pole)
         theta2 = _armax_identify(uf, yf, theta1, na, nb, nc, nz)
         theta1 = theta2
 
@@ -151,9 +158,10 @@ def bj_filtered(u, y, nb, nc, nd, nf, nz):
     u = np.asarray(u, dtype=float).ravel()
     y = np.asarray(y, dtype=float).ravel()
 
-    FF = np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9])
+    poles = _filtered_continuation_poles()
 
-    theta0, _ = arx(u, y, nf, nb, nz)
+    uf, yf = _lowpass_filter(u, y, poles[0])
+    theta0, _ = arx(uf, yf, nf, nb, nz)
 
     b_part = theta0[nf:]
     if nd > nf:
@@ -163,10 +171,8 @@ def bj_filtered(u, y, nb, nc, nd, nf, nz):
 
     theta1 = np.concatenate((b_part, np.zeros(nc), d_part, theta0[:nf]))
 
-    for i in range(len(FF)):
-        b, a = butter(1, FF[i])
-        uf = lfilter(b, a, u)
-        yf = lfilter(b, a, y)
+    for pole in poles:
+        uf, yf = _lowpass_filter(u, y, pole)
         theta2 = _bj_identify(uf, yf, theta1, nb, nc, nd, nf, nz)
         theta1 = theta2
 

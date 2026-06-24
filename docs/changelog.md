@@ -4,6 +4,33 @@
 
 No unreleased changes.
 
+## v0.2.3 — 2026-06-24
+
+Filtered-estimator consistency release.
+
+### Package
+
+- Updated `armax_filtered` and `bj_filtered` to use the same first-order
+  filtered-continuation pole schedule as `oe_filtered`.
+- Updated the filtered ARMAX and BJ initial guesses to run ARX on the first
+  filtered data record, matching the OE filtered workflow.
+- Added a regression test that checks OE, ARMAX, and BJ filtered variants use
+  the same filtered data sequence.
+
+### Documentation
+
+- Updated the user manual and paper drafts to describe the shared filtered
+  continuation schedule.
+- Updated the SYSID 2027 article draft and reproducible experiment artifacts.
+- Removed the older SYSID short-paper draft and pointed the documentation site
+  to the SYSID 2027 article draft.
+- Set package and manuscript metadata to version `0.2.3`.
+
+### Links
+
+- PyPI: <https://pypi.org/project/pysib/0.2.3/>
+- GitHub release: <https://github.com/diegoeck/pysib/releases/tag/v0.2.3>
+
 ## v0.2.2 — 2026-06-17
 
 Bugfix release for the nonlinear optimizer.

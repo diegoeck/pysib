@@ -27,7 +27,7 @@
 
 \title{\textbf{pysib} --- System Identification Toolbox\\[0.5em]
        \large User Manual\\[0.5em]
-       \normalsize Version 0.2.2}
+       \normalsize Version 0.2.3}
 \author{Diego Eckhard\\
         Universidade Federal do Rio Grande do Sul\\
         \texttt{diego@eckhard.com.br}}
@@ -273,7 +273,7 @@ optimization is repeated 9 times with progressively wider passbands,
 then once more on the original unfiltered data to obtain the final
 estimate.
 
-\paragraph{Filter sequence for \texttt{oe\_filtered}.}
+\paragraph{Filter sequence for the filtered estimators.}
 A first-order DC-normalized IIR filter is used:
 \[
   L_i(q^{-1}) = \frac{1 - a_i}{1 - a_i\,q^{-1}}, \quad i = 1,\ldots,9.
@@ -286,22 +286,11 @@ $5\%$ in $\tau_i$ samples, with $\tau_i$ decreasing from 36 to 4:
 \]
 The resulting poles decrease from $a_1 \approx 0.920$ to
 $a_9 \approx 0.473$, progressively widening the passband.
-The initial guess for stage~1 is an ARX estimate computed on the
-most-narrowly filtered data; each subsequent stage warm-starts
-from the previous estimate.
-
-\paragraph{Filter sequence for \texttt{armax\_filtered} and
-\texttt{bj\_filtered}.}
-A first-order Butterworth low-pass filter is used at each stage:
-\[
-  L_i = \mathrm{Butterworth}\!\left(1,\; \omega_c = 0.1\,i\,\pi\right),
-  \quad i = 1,\ldots,9,
-\]
-where $\omega_c$ is the $-3\,\mathrm{dB}$ cutoff in rad/sample.
-The cutoff increases from $0.1\pi$ to $0.9\pi$, covering
-progressively wider bands.
-The initial guess is an ARX estimate on the unfiltered data; each
-subsequent stage warm-starts from the previous estimate.
+The same filter sequence is used by \texttt{oe\_filtered},
+\texttt{armax\_filtered}, and \texttt{bj\_filtered}.  The initial
+guess for stage~1 is an ARX estimate computed on the most-narrowly
+filtered data; each subsequent stage warm-starts from the previous
+estimate.
 
 \subfile{api/oe_filtered}
 \subfile{api/armax_filtered}

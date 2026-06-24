@@ -1,4 +1,4 @@
-TEX = TEXINPUTS=.:../paper-sysid/ifacconf_latex//: BSTINPUTS=.:../paper-sysid/ifacconf_latex//: BIBINPUTS=.:
+TEX = TEXINPUTS=.:ifacconf_latex//: BSTINPUTS=.:ifacconf_latex//: BIBINPUTS=.:
 
 main.pdf: main.tex references.bib
 	$(TEX) pdflatex -interaction=nonstopmode main.tex 2>&1 | grep -E "^!|Warning|Error|Overfull|Underfull" || true
