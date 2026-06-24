@@ -8,6 +8,7 @@ __pycache__/
 dist/
 build/
 site/
+release-artifacts/
 
 # LaTeX build artifacts
 *.aux
