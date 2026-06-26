@@ -96,7 +96,8 @@ All estimators return `(theta, model)`, where `theta` is the estimated parameter
 - [Software archive](https://doi.org/10.5281/zenodo.20572074)
 - [User Manual](manual/main.pdf)
 - [ACM TOMS Paper](paper-toms/main.pdf)
-- [SYSID 2027 Paper](paper-sysid-2027/main.pdf)
+- [SYSID 2027 arXiv preprint](https://arxiv.org/abs/2606.26376)
+- [SYSID 2027 local PDF](paper-sysid-2027/main.pdf)
 
 ## About
 
@@ -104,4 +105,4 @@ All estimators return `(theta, model)`, where `theta` is the estimated parameter
 
 The toolbox is designed for users who need transparent, classical system-identification methods in Python, with documentation, examples, and companion papers describing the algorithms.
 
-[:fontawesome-brands-github: GitHub](https://github.com/diegoeck/pysib) · [:material-school: User Manual](manual/main.pdf) · [:material-book-open-variant: TOMS Paper](paper-toms/main.pdf) · [:material-file-document: SYSID 2027 Paper](paper-sysid-2027/main.pdf)
+[:fontawesome-brands-github: GitHub](https://github.com/diegoeck/pysib) · [:material-school: User Manual](manual/main.pdf) · [:material-book-open-variant: TOMS Paper](paper-toms/main.pdf) · [:material-file-document: SYSID 2027 arXiv](https://arxiv.org/abs/2606.26376)

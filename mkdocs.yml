@@ -36,7 +36,8 @@ nav:
   - Publications:
       - User Manual: manual/main.pdf
       - ACM TOMS Paper: paper-toms/main.pdf
-      - SYSID 2027 Paper: paper-sysid-2027/main.pdf
+      - SYSID 2027 arXiv: https://arxiv.org/abs/2606.26376
+      - SYSID 2027 local PDF: paper-sysid-2027/main.pdf
 
 markdown_extensions:
   - pymdownx.highlight:
