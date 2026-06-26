@@ -5,5 +5,6 @@ Disallow: /paper-toms/experiments/
 Disallow: /paper-toms/publication/
 Disallow: /paper-sysid-2027/experiments/
 Disallow: /paper-sysid-2027/ifacconf_latex/
+Disallow: /paper-ifac-journal/
 
 Sitemap: https://pysib.net/sitemap.xml

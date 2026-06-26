@@ -1,0 +1,5 @@
+pysib implements classical SISO polynomial system-identification estimators.
+Nonlinear PEM estimation uses ARX initialization and cautious local refinement.
+Filtered continuation reshapes finite-sample criteria to avoid local minima.
+Reproducible OE experiments compare standard and filtered optimization.
+The software release, scripts, and archived artifact support reproducibility.
