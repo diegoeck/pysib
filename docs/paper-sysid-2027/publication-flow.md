@@ -5,76 +5,76 @@ associated `pysib` release, and later journal handling.
 
 ## 1. Freeze the software artifact
 
-- [ ] Review the current diff and split changes into coherent commits.
-- [ ] Commit the filtered-estimator code change, tests, docs, and regenerated
+- [x] Review the current diff and split changes into coherent commits.
+- [x] Commit the filtered-estimator code change, tests, docs, and regenerated
       paper/manual artifacts.
-- [ ] Create the final release commit for `pysib` v0.2.3.
-- [ ] Tag the release as `v0.2.3`.
-- [ ] Build source distribution and wheels.
-- [ ] Run:
-      `python3.13 -m twine check dist/pysib-0.2.3*`
-- [ ] Publish only the v0.2.3 artifacts:
-      `python3.13 -m twine upload dist/pysib-0.2.3*`
-- [ ] Create the GitHub Release from tag `v0.2.3`.
-- [ ] Archive the GitHub release on Zenodo, or confirm that Zenodo has minted
-      the v0.2.3 version DOI.
-- [ ] If Zenodo creates a new version DOI, update `references.bib`,
-      `main.tex`, and rebuild `main.pdf`.
+- [x] Create the final release commit for `pysib` v0.2.3.
+- [x] Tag the release as `v0.2.3`.
+- [x] Build source distribution and wheels through GitHub Actions.
+- [x] Download official GitHub Actions artifacts to `release-artifacts/v0.2.3/`.
+- [x] Run `scripts/check-release-artifacts.sh v0.2.3`.
+- [x] Publish only the official v0.2.3 artifacts to PyPI.
+- [x] Create the GitHub Release from tag `v0.2.3`.
+- [x] Confirm Zenodo DOI metadata used by the manuscript.
 
 ## 2. Freeze the SYSID manuscript
 
-- [ ] Confirm the paper cites the final package version and DOI.
-- [ ] Rebuild the paper from a clean state:
+- [x] Confirm the paper cites the final package version and DOI.
+- [x] Rebuild the paper from a clean state:
       `make clean && make && pdflatex -interaction=nonstopmode main.tex`
-- [ ] Confirm no unresolved references or citations remain in `main.log`.
-- [ ] Confirm the final PDF is the one intended for submission.
-- [ ] Create a clean submission bundle containing only required files:
+- [x] Confirm no unresolved references or citations remain in `main.log`.
+- [x] Confirm the final PDF is the one intended for submission.
+- [x] Create a clean arXiv submission bundle containing only required files:
       `main.tex`, `references.bib`, `main.bbl`, `ifacconf_latex/ifacconf.cls`,
       `ifacconf_latex/ifacconf.bst`, and the used PDF figures.
 
 ## 3. arXiv preprint
 
-- [ ] Decide the arXiv category, likely `eess.SY` with possible `cs.MS`
+- [x] Decide the arXiv category, likely `eess.SY` with possible `cs.MS`
       cross-listing.
-- [ ] Prepare a source archive, not just a PDF, unless there is a reason to use
+- [x] Prepare a source archive, not just a PDF, unless there is a reason to use
       PDF-only submission.
-- [ ] Include the custom IFAC class/style files and all figures used by the
+- [x] Include the custom IFAC class/style files and all figures used by the
       manuscript.
-- [ ] Include `references.bib` and/or the generated `main.bbl`.
-- [ ] Exclude auxiliary files, logs, old PDFs, unused figures, and experiment
+- [x] Include `references.bib` and/or the generated `main.bbl`.
+- [x] Exclude auxiliary files, logs, old PDFs, unused figures, and experiment
       data files.
-- [ ] Upload to arXiv and inspect the generated PDF before final submission.
-- [ ] After announcement, record the arXiv ID.
-- [ ] Add the arXiv ID to the GitHub Release notes, documentation, and later
+- [x] Upload to arXiv and inspect the generated PDF before final submission.
+- [x] After announcement, record the arXiv ID: `2606.26376`.
+- [x] Add the arXiv ID to the GitHub Release notes, documentation, and later
       journal/conference cover letters if useful.
 
 ## 4. SYSID submission
 
-- [ ] Wait for the official SYSID 2027 call/submission page and verify:
+- [x] Wait for the official SYSID 2027 call/submission page and verify:
       page limit, template, journal-option instructions, deadlines, anonymity
       rules, and whether arXiv preprints are explicitly allowed.
-- [ ] If the SYSID version differs from the arXiv version, create a submission
+- [x] If the SYSID version differs from the arXiv version, create a submission
       branch or tagged archive for the exact submitted version.
-- [ ] Upload the required PDF/source package through the official submission
+- [x] Upload the required PDF/source package through the official submission
       system.
-- [ ] Save the submitted PDF and submission confirmation in local records.
+- [x] Save the submitted PDF and submission confirmation in local records.
 - [ ] Track reviews and required revisions.
 
 ## 5. Journal option / IFAC Journal of Systems and Control
 
-- [ ] Confirm the exact journal-option workflow from SYSID 2027 instructions.
-- [ ] Check whether the journal version should be identical to the SYSID
+- [x] Confirm the exact journal-option workflow from SYSID 2027 instructions.
+- [x] Check whether the journal version should be identical to the SYSID
       manuscript or expanded after review.
-- [ ] Disclose the arXiv preprint in the cover letter if required.
+- [x] Create a separate journal submission version under
+      `docs/paper-ifac-journal/`.
+- [x] Prepare title page, cover letter, highlights, and manuscript PDF.
+- [x] Disclose the arXiv preprint and SYSID submission number 5 in the cover
+      letter.
+- [x] Submit to IFAC Journal of Systems and Control.
 - [ ] Update the arXiv record with journal reference and DOI after acceptance.
 - [ ] Update `pysib.net`, README, changelog, and citation metadata after final
       publication.
 
 ## Current local status
 
-- `pysib` has been bumped locally to v0.2.3.
-- Local v0.2.3 sdist and one macOS CPython 3.13 wheel have been built.
-- `twine check` passed locally.
-- The package has not yet been uploaded to PyPI.
-- The release tag and GitHub Release have not yet been created.
-- The arXiv, SYSID, and journal submissions have not yet been made.
+- `pysib` v0.2.3 has been released on PyPI and GitHub.
+- arXiv preprint: <https://arxiv.org/abs/2606.26376>.
+- SYSID submission completed; submission number: `5`.
+- IFAC Journal of Systems and Control submission completed.
+- Next tracked action: wait for reviews / editorial decision.
