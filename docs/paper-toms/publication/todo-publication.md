@@ -56,10 +56,14 @@ Estrutura do artigo (implementada):
 
 ### 1.2 Pendente (ajustes finos)
 
-- [ ] Prefixar título com `Algorithm XXXX:` (número atribuído pela revista)
-- [ ] Verificar se há URLs inline que devem migrar para `\cite{}`
-- [ ] Adicionar entrada `.bib` apontando para versões futuras do software
-- [ ] Adicionar `alt` descriptions às figuras (aviso acmart acessibilidade)
+- [x] Prefixar título com `Algorithm XXXX:` (número real atribuído pela revista após aceite)
+- [x] Verificar se há URLs inline que devem migrar para `\cite{}`
+- [x] Adicionar entrada `.bib` apontando para versões futuras do software (`pysib_repo`)
+- [x] Adicionar `alt` descriptions às figuras (aviso acmart acessibilidade)
+- [x] Corrigir grafia Steiglitz--McBride; qualificar ponto fixo do SM (Stoica & Söderström 1981)
+- [x] Remover snippet de código do artigo (checklist: pertence ao user manual)
+- [x] Funding acks (CNPq), CCS 500 = Mathematical software, abstract em 200 palavras
+- [x] Figuras regeneradas: sem suptitle sobreposto, rótulo b0, fontes maiores
 
 ---
 

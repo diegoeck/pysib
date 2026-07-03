@@ -27,14 +27,14 @@ lines.append(f"M = {M}, N = {N}, NOISE\\_STD = {NOISE_STD}\n")
 lines.append("## True OE parameters\n")
 lines.append("| parameter | value |")
 lines.append("|-----------|-------|")
-lines.append(f"| $b_1$ | {B_SIM[1]:.8f} |")
+lines.append(f"| $b_0$ | {B_SIM[1]:.8f} |")
 for i, value in enumerate(F_SIM[1:], start=1):
     lines.append(f"| $f_{i}$ | {value:.8f} |")
 
 lines.append("\n## OE-structure estimates (SM and OE)\n")
 lines.append("| method | parameter | mean | std |")
 lines.append("|--------|-----------|------|-----|")
-oe_labels = ["$b_1$", "$f_1$", "$f_2$"]
+oe_labels = ["$b_0$", "$f_1$", "$f_2$"]
 for method_name, matrix in [("SM", T_sm), ("OE", T_oe)]:
     for i, label in enumerate(oe_labels):
         mean = np.mean(matrix[i, :])
@@ -57,9 +57,10 @@ print("robustness_noisy_data_results.md written")
 # --- Figure --------------------------------------------------------------------
 
 true_vals = [B_SIM[1]] + list(F_SIM[1:])
-labels    = ["$b_1$", "$f_1$", "$f_2$"]
+labels    = ["$b_0$", "$f_1$", "$f_2$"]
 
-fig, axes = plt.subplots(1, 3, figsize=(12, 3.5))
+plt.rcParams.update({"font.size": 11})
+fig, axes = plt.subplots(1, 3, figsize=(9, 3))
 
 for ax, lbl, tv, idx in zip(axes, labels, true_vals, range(3)):
     all_vals = np.concatenate([T_sm[idx], T_oe[idx]])
@@ -87,7 +88,6 @@ fig.legend(
     ],
     loc="upper center", ncol=2, frameon=False,
 )
-fig.suptitle(f"Robustness under noisy data (M={M}, N={N}, noise std={NOISE_STD})", y=1.02)
-fig.tight_layout()
+fig.tight_layout(rect=[0, 0, 1, 0.90])
 fig.savefig(ROOT / "robustness_noisy_data_parameters.pdf", bbox_inches="tight")
 print("robustness_noisy_data_parameters.pdf written")

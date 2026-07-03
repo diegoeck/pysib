@@ -80,7 +80,8 @@ print("filtered_continuation_oe_results.md written")
 
 # --- Figure --------------------------------------------------------------------
 
-fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+plt.rcParams.update({"font.size": 11})
+fig, axes = plt.subplots(1, 2, figsize=(9, 3.4))
 
 lo = min(errors_oe.min(), errors_filt.min())
 hi = max(errors_oe.max(), errors_filt.max())
@@ -102,10 +103,10 @@ ax.set_ylabel("count")
 ax = axes[1]
 bp = ax.boxplot(
     [errors_oe, errors_filt],
-    labels=["OE", "OE filtered"],
     patch_artist=True,
     widths=0.5,
 )
+ax.set_xticklabels(["OE", "OE filtered"])
 bp["boxes"][0].set_facecolor("steelblue")
 bp["boxes"][1].set_facecolor("tomato")
 ax.axhline(THRESHOLD, color="k", linestyle="--", linewidth=1)
@@ -119,10 +120,6 @@ fig.legend(
     ],
     loc="upper center", ncol=2, frameon=False,
 )
-fig.suptitle(
-    f"Effect of filtered continuation (M={M}, N={N}, noise std={NOISE_STD})",
-    y=1.02,
-)
-fig.tight_layout()
+fig.tight_layout(rect=[0, 0, 1, 0.90])
 fig.savefig(ROOT / "filtered_continuation_oe_errors.pdf", bbox_inches="tight")
 print("filtered_continuation_oe_errors.pdf written")
