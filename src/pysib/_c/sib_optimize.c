@@ -22,6 +22,7 @@ void sib_steepest(double* tetafim)
 {
 
     int i,j,k;
+    int stop;
     double *tetatemp;
     double *dir;
     double passo = 0.00001;
@@ -36,6 +37,7 @@ void sib_steepest(double* tetafim)
 
     for(i=1; i<=100; i++)
     {
+        stop = 0;
 
         
 
@@ -43,6 +45,12 @@ void sib_steepest(double* tetafim)
         {   
             mode=1;
             grad(tetafim,J1);
+
+            if (!isfinite(J1[0]))
+            {
+                stop = 1;
+                break;
+            }
             
             //printf("T %1.10f %1.10f %1.10f %1.10f\n",tetafim[0],tetafim[1],tetafim[2],tetafim[3]);
             //printf("G %1.10f %1.10f %1.10f %1.10f\n",gra[0],gra[1],gra[2],gra[3]);
@@ -57,7 +65,12 @@ void sib_steepest(double* tetafim)
                 dir[k] = (4*dir[k]+gra[k])/5;
             }
     
-            N = norm(dir,dteta); 
+            N = norm(dir,dteta);
+            if (!isfinite(N) || N <= DBL_EPSILON)
+            {
+                stop = 1;
+                break;
+            }
 
             for (k = 0; k < dteta; k++)
             {
@@ -78,6 +91,11 @@ void sib_steepest(double* tetafim)
     
         }    
     
+        if (stop)
+        {
+            break;
+        }
+
         
         printf("G: ");
         for (k = 0; k < i/5; k++)
@@ -148,6 +166,11 @@ void sib_newton(double* tetafim)
         mode=2;
         grad(tetafim,J1);
 
+        if (!isfinite(J1[0]) || norm(gra,dteta) <= DBL_EPSILON)
+        {
+            break;
+        }
+
         //printf("G: \n");
         //printf("antes %1.10f %1.10f %1.10f %1.10f\n",gra[0],gra[1],gra[2],gra[3]);
         
@@ -166,6 +189,11 @@ void sib_newton(double* tetafim)
         
         //dgesv(&Ns, &Ms, *H, &Ns, ipiv, gra, &Ns, &info);
         dposv(uplo, &Ns, &Ms, *H, &Ns, gra, &Ns, &info);
+
+        if (info != 0)
+        {
+            break;
+        }
 
         //printf("depois %1.10f %1.10f %1.10f %1.10f\n",gra[0],gra[1],gra[2],gra[3]);
         
