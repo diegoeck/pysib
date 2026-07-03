@@ -55,9 +55,10 @@ scripts/create-github-release-draft.sh vX.Y.Z
 
 10. Confirm PyPI links and publish the GitHub Release draft.
 
-## Current v0.2.3 state
+## Previous v0.2.3 state
 
-The tag `v0.2.3` has been pushed and the GitHub Actions wheel build passed.
+For reference, the tag `v0.2.3` has been pushed and the GitHub Actions wheel
+build passed.
 The official artifacts were downloaded to:
 
 ```bash

@@ -1,6 +1,13 @@
 # Changelog
 
-## Unreleased
+## v0.2.4 — 2026-07-03
+
+CALGO artifact preparation and optimizer robustness release.
+
+### Package
+
+- Guarded the shared C optimizer against degenerate zero-error steps, avoiding
+  NaNs when an iteration reaches an exact or nearly exact solution.
 
 ### Examples
 
@@ -14,6 +21,15 @@
 - Updated the CALGO package layout so article drivers include their official
   `.npz` data caches, while regular examples exclude generated result caches.
 - Added a top-level CALGO artifact overview in `Doc/README.md`.
+
+### Documentation
+
+- Updated package, citation, and user-manual metadata to version `0.2.4`.
+
+### Links
+
+- PyPI: <https://pypi.org/project/pysib/0.2.4/>
+- GitHub release: <https://github.com/diegoeck/pysib/releases/tag/v0.2.4>
 
 ## v0.2.3 — 2026-06-24
 
