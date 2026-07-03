@@ -35,9 +35,12 @@ nav:
   - Changelog: changelog.md
   - Publications:
       - User Manual: manual/main.pdf
-      - ACM TOMS Paper: paper-toms/main.pdf
-      - SYSID 2027 arXiv: https://arxiv.org/abs/2606.26376
-      - SYSID 2027 local PDF: paper-sysid-2027/main.pdf
+      - arXiv preprint: https://arxiv.org/abs/2606.26376
+
+exclude_docs: |
+  paper-toms/
+  paper-sysid-2027/
+  paper-ifac-journal/
 
 markdown_extensions:
   - pymdownx.highlight:

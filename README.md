@@ -62,7 +62,7 @@ See <https://pysib.net/> for the complete documentation.
 - Documentation site: <https://pysib.net/>
 - Software archive: <https://doi.org/10.5281/zenodo.20572074>
 - User Manual: <https://pysib.net/manual/main.pdf>
-- ACM TOMS Paper: <https://pysib.net/paper/main.pdf>
+- arXiv preprint: <https://arxiv.org/abs/2606.26376>
 
 ## Test
 
