@@ -2,7 +2,18 @@
 
 ## Unreleased
 
-No unreleased changes.
+### Examples
+
+- Added a Monte Carlo Box--Jenkins example comparing `bj` and `bj_filtered`
+  on a plant with colored output noise.
+
+### Distribution
+
+- Updated the CALGO packaging script to include the Box--Jenkins Monte Carlo
+  driver and expected output.
+- Updated the CALGO package layout so article drivers include their official
+  `.npz` data caches, while regular examples exclude generated result caches.
+- Added a top-level CALGO artifact overview in `Doc/README.md`.
 
 ## v0.2.3 — 2026-06-24
 

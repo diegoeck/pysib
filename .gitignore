@@ -9,6 +9,8 @@ dist/
 build/
 site/
 release-artifacts/
+examples/example_monte_carlo_bj_results.md
+examples/example_monte_carlo_bj_*.pdf
 
 # LaTeX build artifacts
 *.aux

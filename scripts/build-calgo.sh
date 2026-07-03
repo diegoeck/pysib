@@ -7,10 +7,11 @@
 #   userManual.pdf
 #   userManual/     LaTeX sources able to regenerate userManual.pdf
 #   Python/         package sources (verbatim), tests, examples, drivers
-#   Doc/            LICENSE, CITATION
+#   Doc/            README, LICENSE, CITATION
 #
-# The pip package sources are copied verbatim; nothing in the repository is
-# modified by this script.
+# The package sources are copied into a staging directory; generated caches and
+# compiled artifacts are stripped there.  Nothing in the repository is modified
+# by this script.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -37,6 +38,9 @@ cp "$ROOT/pyproject.toml" "$ROOT/setup.py" "$ROOT/MANIFEST.in" \
 cp -R "$ROOT/src" "$STAGE/Python/src"
 cp -R "$ROOT/tests" "$STAGE/Python/tests"
 cp -R "$ROOT/examples" "$STAGE/Python/examples"
+find "$STAGE/Python/examples" -name "*.pdf" -delete
+find "$STAGE/Python/examples" -name "*.npz" -delete
+find "$STAGE/Python/examples" -name "*_results.md" -delete
 
 # Drivers replicating all results in the manuscript, with expected outputs.
 mkdir -p "$STAGE/Python/drivers/expected_output"
@@ -44,9 +48,16 @@ cp "$EXP/robustness_noisy_data.py" \
    "$EXP/robustness_noisy_data_plot.py" \
    "$EXP/filtered_continuation_oe.py" \
    "$EXP/filtered_continuation_oe_plot.py" \
+   "$EXP/filtered_continuation_bj.py" \
+   "$EXP/filtered_continuation_bj_plot.py" \
+   "$STAGE/Python/drivers/"
+cp "$EXP/robustness_noisy_data.npz" \
+   "$EXP/filtered_continuation_oe.npz" \
+   "$EXP/filtered_continuation_bj.npz" \
    "$STAGE/Python/drivers/"
 cp "$EXP/robustness_noisy_data_results.md" \
    "$EXP/filtered_continuation_oe_results.md" \
+   "$EXP/filtered_continuation_bj_results.md" \
    "$STAGE/Python/drivers/expected_output/"
 
 cat > "$STAGE/Python/drivers/README.md" <<'EOF'
@@ -59,18 +70,25 @@ They require no interactive input.
 
        pip install ..
 
-2. Run the Monte Carlo simulations (Section 5.1 and Section 5.2):
+2. To regenerate the Monte Carlo data from scratch (Sections 5.1--5.3),
+   run:
 
        python robustness_noisy_data.py
        python filtered_continuation_oe.py
+       python filtered_continuation_bj.py
+
+   This step can take some time.  The artifact also includes the `.npz`
+   data files used for the manuscript, so the next step can be run
+   immediately.
 
 3. Generate the statistics tables and the figures of the article:
 
        python robustness_noisy_data_plot.py
        python filtered_continuation_oe_plot.py
+       python filtered_continuation_bj_plot.py
 
 Each plot script writes a `*_results.md` file with the statistics reported
-in the article (Tables 5 and 6) and a `*.pdf` figure (Figures 1 and 2).
+in the article and one or more `*.pdf` figures.
 Compare the generated `*_results.md` files with the reference copies in
 `expected_output/`.  All drivers use a fixed pseudo-random seed, so the
 outputs are reproducible bit-for-bit on the same NumPy version.
@@ -80,6 +98,29 @@ EOF
 mkdir -p "$STAGE/Doc"
 cp "$ROOT/LICENSE" "$STAGE/Doc/"
 cp "$ROOT/CITATION.cff" "$STAGE/Doc/"
+cat > "$STAGE/Doc/README.md" <<'EOF'
+# pysib CALGO software artifact
+
+This archive accompanies the ACM TOMS Algorithm manuscript for `pysib`.
+
+Top-level contents:
+
+- `userManual.pdf`: user manual for the package.
+- `userManual/`: LaTeX source used to build the user manual.
+- `Python/`: installable Python package, tests, examples, and article drivers.
+- `Doc/`: license, citation metadata, and this overview.
+
+To build and test the package, enter `Python/` and install it:
+
+    pip install .
+    python -m pytest tests/ -v
+
+The article experiments are in `Python/drivers/`.  That directory contains
+the scripts, the `.npz` data files used by the manuscript, expected Markdown
+outputs, and a README with exact reproduction instructions.
+
+Regular usage examples are in `Python/examples/`.
+EOF
 
 # --- Strip VCS metadata, caches, and compiled artifacts (CALGO checklist) ---
 find "$STAGE" \( -name "__pycache__" -o -name ".git*" -o -name ".DS_Store" \

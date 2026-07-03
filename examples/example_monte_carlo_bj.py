@@ -5,7 +5,7 @@ disturbance is colored by a first-order noise model with one zero and one
 pole, so the Box-Jenkins structure is the correct model class:
 
     y(t) = B/F u(t-1) + C/D e(t),
-    C = 1 + 0.5 q^-1,  D = 1 - 0.7 q^-1.
+    C = 1 + 0.1 q^-1,  D = 1 - 0.2 q^-1.
 """
 import numpy as np
 from scipy.signal import lfilter
