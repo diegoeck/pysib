@@ -1,6 +1,7 @@
 import numpy as np
 
 from .arx import arx
+from ._stability import warn_if_unstable
 from ._c._pysib_armax_core import identify as _armax_identify
 
 
@@ -51,5 +52,7 @@ def armax(u, y, na, nb, nc, nz):
         "D": np.array([1.0]),
         "F": np.array([1.0]),
     }
+
+    warn_if_unstable(m, "C", "armax", "armax_filtered")
 
     return theta2, m

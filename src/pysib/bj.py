@@ -1,6 +1,7 @@
 import numpy as np
 
 from .arx import arx
+from ._stability import warn_if_unstable
 from ._c._pysib_bj_core import identify as _bj_identify
 
 
@@ -65,5 +66,7 @@ def bj(u, y, nb, nc, nd, nf, nz):
         "D": np.concatenate(([1.0], theta2[nb + nc:nb + nc + nd])),
         "F": np.concatenate(([1.0], theta2[nb + nc + nd:])),
     }
+
+    warn_if_unstable(m, ("C", "F"), "bj", "bj_filtered")
 
     return theta2, m

@@ -1,8 +1,12 @@
 """Exact parameter recovery tests for all sib estimators (noise-free data)."""
+import warnings
+
 import numpy as np
+import pytest
 from scipy.signal import lfilter
 import pysib
 import pysib.filtered as filtered_module
+from pysib._stability import warn_if_unstable
 
 
 def _sin_input(N):
@@ -359,3 +363,28 @@ def test_bj_filtered_noisy():
 
     assert abs(theta[0] - 1.0) < 1e-2       # b1
     assert abs(theta[1] - (-0.7)) < 1e-2    # f1
+
+
+def test_stability_warning():
+    """Unstable predictor polynomials trigger a warning naming the alternative."""
+    unstable = {"A": [1.0], "B": [0.0, 1.0], "C": [1.0], "D": [1.0],
+                "F": np.poly([1.01, 0.5])}
+    with pytest.warns(RuntimeWarning, match="oe_filtered"):
+        warn_if_unstable(unstable, "F", "oe", "oe_filtered")
+
+    stable = dict(unstable, F=np.poly([0.9, 0.5]))
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        warn_if_unstable(stable, "F", "oe", "oe_filtered")
+        warn_if_unstable(stable, ("C", "F"), "bj", "bj_filtered")
+
+
+def test_stable_estimate_has_no_warning():
+    """A stable OE estimate does not warn."""
+    N = 500
+    u = _sin_input(N)
+    y = lfilter([0, 1], [1, -0.7], u)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", RuntimeWarning)
+        pysib.oe(u, y, nb=1, nf=1, nz=1)

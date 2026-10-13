@@ -2,6 +2,7 @@ import numpy as np
 from scipy.signal import lfilter
 
 from .arx import arx
+from ._stability import warn_if_unstable
 from ._c._pysib_oe_core import identify as _oe_identify
 from ._c._pysib_armax_core import identify as _armax_identify
 from ._c._pysib_bj_core import identify as _bj_identify
@@ -68,6 +69,8 @@ def oe_filtered(u, y, nb, nf, nz):
         "D": np.array([1.0]),
         "F": np.concatenate(([1.0], theta2[nb:])),
     }
+    warn_if_unstable(m, "F", "oe_filtered")
+
     return theta2, m
 
 
@@ -122,6 +125,8 @@ def armax_filtered(u, y, na, nb, nc, nz):
         "D": np.array([1.0]),
         "F": np.array([1.0]),
     }
+    warn_if_unstable(m, "C", "armax_filtered")
+
     return theta2, m
 
 
@@ -185,4 +190,6 @@ def bj_filtered(u, y, nb, nc, nd, nf, nz):
         "D": np.concatenate(([1.0], theta2[nb + nc:nb + nc + nd])),
         "F": np.concatenate(([1.0], theta2[nb + nc + nd:])),
     }
+    warn_if_unstable(m, ("C", "F"), "bj_filtered")
+
     return theta2, m

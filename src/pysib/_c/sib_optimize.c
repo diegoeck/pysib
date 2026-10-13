@@ -143,8 +143,11 @@ void sib_newton(double* tetafim)
     ptrdiff_t Ns = dteta;
     ptrdiff_t Ms = 1;
     ptrdiff_t info = 0;
-    
-    char uplo[] = "U";
+    ptrdiff_t rank = 0;
+    ptrdiff_t lwork = 5*dteta;
+    double rcond = -1;  /* singular values below machine precision count as zero */
+    double *sv;
+    double *work;
     //ptrdiff_t *ipiv;
     //ipiv=malloc((dteta)*sizeof(ptrdiff_t));
 
@@ -156,6 +159,8 @@ void sib_newton(double* tetafim)
 
 
     tetatemp=malloc((dteta)*sizeof(double));
+    sv=malloc((dteta)*sizeof(double));
+    work=malloc((lwork)*sizeof(double));
 
     //memcpy(tetafim,teta,sizeof(double) *dteta);
 
@@ -188,7 +193,9 @@ void sib_newton(double* tetafim)
         
         
         //dgesv(&Ns, &Ms, *H, &Ns, ipiv, gra, &Ns, &info);
-        dposv(uplo, &Ns, &Ms, *H, &Ns, gra, &Ns, &info);
+        /* Minimum-norm solution of H*x = gra through the SVD of H, so that
+           directions the data do not determine are left unchanged. */
+        dgelss(&Ns, &Ns, &Ms, *H, &Ns, gra, &Ns, sv, &rcond, &rank, work, &lwork, &info);
 
         if (info != 0)
         {
@@ -236,10 +243,12 @@ void sib_newton(double* tetafim)
             }
         }
 
-        // if (j==10)
-        // {
-        //     break;
-        // }
+        /* No acceptable step after 10 halvings: the point cannot be improved
+           along the Gauss-Newton direction, so the phase ends here. */
+        if (j==10)
+        {
+            break;
+        }
 
         
         
@@ -265,6 +274,8 @@ void sib_newton(double* tetafim)
 
     //free(ipiv);
     free(tetatemp);
+    free(sv);
+    free(work);
 
 }
  

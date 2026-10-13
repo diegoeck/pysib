@@ -1,6 +1,7 @@
 import numpy as np
 
 from .arx import arx
+from ._stability import warn_if_unstable
 from ._c._pysib_oe_core import identify as _oe_identify
 
 
@@ -52,5 +53,7 @@ def oe(u, y, nb, nf, nz):
         "D": np.array([1.0]),
         "F": np.concatenate(([1.0], theta2[nb:])),
     }
+
+    warn_if_unstable(m, "F", "oe", "oe_filtered")
 
     return theta2, m
