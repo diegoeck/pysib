@@ -1,5 +1,46 @@
 # Changelog
 
+## v0.2.5 — 2026-10-13
+
+Optimizer robustness release, prepared during the revision of the IFAC Journal
+of Systems and Control article.
+
+### Package
+
+- The Gauss--Newton system of the shared C optimizer is now solved with LAPACK
+  `dgelss` (minimum-norm solution through the SVD, singular values below
+  machine precision treated as zero) instead of a Cholesky factorization
+  (`dposv`). Singular or ill-conditioned Gauss--Newton matrices, typical of
+  high-order models with clustered poles, no longer make every Gauss--Newton
+  step fail. On an eighth-order benchmark the median relative simulation error
+  of `oe` dropped from about 2.5% to 0.2%; estimates for well-conditioned
+  problems are unchanged.
+- The Gauss--Newton phase now stops when none of the ten backtracking
+  candidates decreases the cost, instead of repeating the same failed step
+  until the 1000-iteration budget is exhausted. Estimates are unchanged; the
+  phase typically ends after 150--200 iterations.
+- `oe`, `armax`, `bj` and their filtered variants issue a `RuntimeWarning`
+  when a predictor polynomial of the returned model (`F` for OE, `C` for
+  ARMAX, `C` and `F` for BJ) has a root on or outside the unit circle; the
+  warning of the unfiltered estimators suggests the filtered variant.
+
+### Experiments
+
+- Added `experiments/ifac-jsc/` with the scripts, data caches, and results of
+  the numerical experiments of the IFAC Journal of Systems and Control article,
+  which compare `pysib` with SIPPY and pysid.
+
+### Documentation
+
+- Updated package, citation, and user-manual metadata to version `0.2.5`.
+- Described the Gauss--Newton solver, the stopping rules, and the stability
+  warning in the user manual.
+
+### Links
+
+- PyPI: <https://pypi.org/project/pysib/0.2.5/>
+- GitHub release: <https://github.com/diegoeck/pysib/releases/tag/v0.2.5>
+
 ## v0.2.4 — 2026-07-03
 
 CALGO artifact preparation and optimizer robustness release.

@@ -27,7 +27,7 @@
 
 \title{\textbf{pysib} --- System Identification Toolbox\\[0.5em]
        \large User Manual\\[0.5em]
-       \normalsize Version 0.2.4}
+       \normalsize Version 0.2.5}
 \author{Diego Eckhard\\
         Universidade Federal do Rio Grande do Sul\\
         \texttt{diego@eckhard.com.br}}
@@ -87,7 +87,7 @@ Each model structure fixes some polynomials to unity:
 \end{tabular}
 \end{center}
 
-An input delay of $n_k$ samples is incorporated by prepending $n_k$
+An input delay of $n_z$ samples is incorporated by prepending $n_z$
 zeros to the $B$ polynomial.
 
 \subsection{Return convention}
@@ -219,10 +219,10 @@ At each $\theta$, the sensitivity vector
 $\psi(t;\theta) = -\partial\varepsilon(t;\theta)/\partial\theta$
 is computed by filtering.  For the OE structure, for example,
 \[
-  \psi^B_j(t) = \frac{u(t-n_k)}{F(q^{-1})} \cdot q^{-j}, \qquad
+  \psi^B_j(t) = \frac{u(t-n_z)}{F(q^{-1})} \cdot q^{-j}, \qquad
   \psi^F_j(t) = \frac{\hat{y}(t)}{F(q^{-1})} \cdot q^{-j},
 \]
-where $\hat{y}(t) = (B/F)\,u(t-n_k)$ is the current simulated
+where $\hat{y}(t) = (B/F)\,u(t-n_z)$ is the current simulated
 output.  ARMAX and BJ use analogous filtered signals for their
 respective polynomials.
 
@@ -245,15 +245,26 @@ The gradient direction is smoothed by an exponential moving average before each 
 The update is $\theta \leftarrow \theta - \alpha\,d/\|d\|$, where
 $\alpha$ is adapted per step (multiplied by $1.01$ on a successful
 reduction, by $0.99$ otherwise).  This phase runs for up to
-$100 \times 100$ gradient evaluations.
+$100 \times 100$ gradient evaluations, and stops earlier if $\alpha$
+falls below $10^{-7}$.
 
 \paragraph{Phase~2 --- Gauss--Newton with backtracking.}
 The Newton direction $d$ is obtained by solving $H\,d = g$ via
-LAPACK \texttt{dposv} (Cholesky factorisation for symmetric positive
-definite matrices).  The step length grows linearly with iteration
-$i$: $\theta \leftarrow \theta - (i/1000)\,d$.  If the step
-increases $V$, the candidate is bisected up to 10 times.  This
-phase runs for up to 1\,000 iterations.
+LAPACK \texttt{dgelss}, which computes the minimum-norm solution through
+the singular value decomposition of $H$ and treats singular values
+below machine precision as zero, so that singular or ill-conditioned
+$H$ is handled without failure.  The step length grows linearly with
+iteration $i$: $\theta \leftarrow \theta - (i/1000)\,d$.  If the step
+increases $V$, the candidate is bisected up to 10 times.  The phase
+stops when none of these 10 candidates decreases $V$, and in any case
+after 1\,000 iterations.
+
+\paragraph{Stability of the returned model.}
+The optimizer does not impose stability.  After estimation, the
+predictor polynomials ($F$ for OE, $C$ for ARMAX, $C$ and $F$ for BJ)
+are checked, and a \texttt{RuntimeWarning} is issued if any of them has
+a root on or outside the unit circle; the warning of the unfiltered
+estimators suggests the corresponding \texttt{*\_filtered} variant.
 
 \subfile{api/oe}
 \subfile{api/armax}
